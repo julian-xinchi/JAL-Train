@@ -16,6 +16,6 @@ ADD rdc_boxed.exe which can draw curve of sin(2\*pi\*exci_x)\*sin(2\*pi\*sig_x),
 
       Noise factor(0.0~0.5)
   
-  One "Generate" button included, when press the button, new curve decided by parameters in four text boxes will be draw in GUI.
+  One "Generate" button included, when press the button, new curve decided by parameters in four text boxes will be drawn in GUI.
 
 
