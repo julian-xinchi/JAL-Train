@@ -2,7 +2,7 @@
 A simple tool to Draw math function's curve in a GUI
 
 # Revision brief
-2023/5/10:
+2023/5/10, create master branch, initial check-in:
 
 ADD rdc_boxed.exe which can draw curve of sin(2\*pi\*exci_x)\*sin(2\*pi\*sig_x), dll already integrated.
 
