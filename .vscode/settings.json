@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "limits": "c",
+        "type_traits": "c",
+        "sdl_ttf.h": "c"
+    }
+}
