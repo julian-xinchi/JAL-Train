@@ -1137,6 +1137,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    //int t = round(SDL_GetTicks() / 1000);
+
     // Clean up
     SDL_FreeSurface(text_surface);
     SDL_DestroyTexture(text_texture);
