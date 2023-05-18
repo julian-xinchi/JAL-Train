@@ -20,4 +20,10 @@ ADD rdc_boxed.exe which can draw curve of sin(2\*pi\*exci_x)\*sin(2\*pi\*sig_x),
   
   One "Generate" button included, when press the button, new curve decided by parameters in four text boxes will be drawn in GUI.
 
+2023/5/18:
+ADD char_enc_dec.c program:
 
+  file_enc_dec.exe file_orig.txt file_enc.txt     --encode file_orig.txt to file_enc.txt
+  file_enc_dec.exe file_enc.txt file_dec.txt -r   --decode file_enc.txt to file_dec.txt
+
+Encode method: replace character of "q,w,e,...,o,p" with character of "1,2,...,9,0" in standard 101 keyboard, etc.
