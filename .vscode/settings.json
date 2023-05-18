@@ -3,5 +3,6 @@
         "limits": "c",
         "type_traits": "c",
         "sdl_ttf.h": "c"
-    }
+    },
+    "makefile.makePath": "D:\\mingw64\\bin\\make.exe"
 }
