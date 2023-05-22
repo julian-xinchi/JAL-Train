@@ -2,7 +2,9 @@
     "files.associations": {
         "limits": "c",
         "type_traits": "c",
-        "sdl_ttf.h": "c"
+        "sdl_ttf.h": "c",
+        "wchar.h": "c"
     },
-    "makefile.makePath": "D:\\mingw64\\bin\\make.exe"
+    "makefile.makePath": "D:\\mingw64\\bin\\make.exe",
+    "C_Cpp.errorSquiggles": "disabled"
 }

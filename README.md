@@ -28,3 +28,10 @@ ADD char_enc_dec.c program:
   file_enc_dec.exe file_enc.txt file_dec.txt -r   --decode file_enc.txt to file_dec.txt
 
 Encode method: replace character of "q,w,e,...,o,p" with character of "1,2,...,9,0" in standard 101 keyboard, etc.
+
+2023/5/22
+ADD cht_enc_dec.c program (chinese supported):
+
+  cht_enc_dec.exe file_orig.txt file_enc.txt     --encode file_orig.txt to file_enc.txt
+
+  cht_enc_dec.exe file_enc.txt file_dec.txt -r   --decode file_enc.txt to file_dec.txt
