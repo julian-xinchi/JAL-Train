@@ -35,9 +35,13 @@ int main(int argc, char* argv[]) {
     // 读取utf-8文件内容并写入utf-16文件
     while ((ch = fgetwc(in)) != WEOF) {
         if (restore_mode) {
-            ch += 0x1;
+            if (ch != '\n' && ch != '\r') {
+                ch -= 0x77;
+            }
         } else {
-            ch -= 0x1;
+            if (ch != '\n' && ch != '\r') {
+                ch += 0x77;
+            }
         }
         fputwc(ch, out);
     }
