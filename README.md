@@ -1,5 +1,7 @@
 # General description
-A simple tool to Draw math function's curve in a GUI
+Training SET...
+rdc.c -> A simple tool to Draw math function's curve in a GUI
+char_enc_dec.c -> a simple enc/dec
 
 # Revision brief
 2023/5/10, create master branch, initial check-in:
