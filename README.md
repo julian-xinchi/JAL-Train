@@ -1,6 +1,8 @@
 # General description
-Training SET...
+Training/Practices SET...
+
 rdc.c -> A simple tool to Draw math function's curve in a GUI
+
 char_enc_dec.c -> a simple enc/dec
 
 # Revision brief
