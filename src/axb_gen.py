@@ -2,16 +2,71 @@ import argparse
 import re
 import sys
 
+def get_file_lines(input_file):
+    with open(input_file, 'r') as file:
+        lines = file.readlines()
+    return lines
+
+def update_file(input_file, original_lines, generated_lines):
+    if generated_lines != original_lines:
+        with open(input_file, 'w') as file:
+            file.writelines(generated_lines)
+    else:
+        print("No changes made to file.")
+
 def find_markers(lines, begin_marker, end_marker):
     begin = None
     end = None
+
     for i, line in enumerate(lines):
         if begin_marker.search(line):
             begin = i
         elif end_marker.search(line):
             end = i
             break
+
+    if begin is None or end is None:
+        sys.stderr.write(f"Error: Could not find markers.\n")
+        sys.exit(1)
+
+    # print(f"Found markers at lines {begin+1} and {end+1}.")
+
     return begin, end
+
+def get_cur_port_grp(rw_attr, ms_attr):
+    cr5_port_list_path = 'cr5_port_list.txt'
+
+    keywords = []
+    vlen_values = []
+    io_values = []
+
+    with open(cr5_port_list_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            parts = [part.strip() for part in line.split(',')]
+
+            if len(parts) >= 3:
+                if rw_attr == "r":
+                    if re.match (parts[0], r"^AW_.*") or re.match (parts[0], r"^W_.*") or re.match (parts[0], r"^B_.*") :
+                        break
+                elif rw_attr == "w":
+                    if re.match (parts[0], r"^AR_.*") or re.match (parts[0], r"^R_.*"):
+                        break
+                keywords.append(parts[0])
+                vlen_values.append(int(parts[1]))
+                if ms_attr == "s":
+                    if parts[2] == "i":
+                        io_values.append("o")
+                    else:
+                        io_values.append("i")
+                else:
+                    io_values.append(parts[2])
+            else:
+                print(f"Warning: Invalid line in {cr5_port_list_path}: {line}")
+                sys.stderr.write(f"Warning: Invalid line in {cr5_port_list_path}: {line}\n")
+                sys.exit(1)
+
+    return keywords, vlen_values, io_values
 
 def extract_parameters(input_file):
     define_start_marker = "//SD_AXB_DEFINE_begin"
@@ -44,24 +99,7 @@ def extract_parameters(input_file):
 
     return N, xprefix, channel_attrib
 
-def generate_content(input_file, port_option):
-    cr5_port_list_path = 'cr5_port_list.txt'
-
-    keywords = []
-    vlen_values = []
-    io_values = []
-
-    with open(cr5_port_list_path, 'r') as file:
-        for line in file:
-            line = line.strip()
-
-            parts = [part.strip() for part in line.split(',')]
-
-            if len(parts) == 3:
-                keywords.append(parts[0])
-                vlen_values.append(int(parts[1]))
-                io_values.append(parts[2])
-
+def generate_content(lines, port_option):
     keyword_width = 28
     vlen_value_width = 20
     io_value_width = 8
@@ -69,52 +107,40 @@ def generate_content(input_file, port_option):
     begin_marker = re.compile(r"//\s*SD_PORT_GEN_begin")
     end_marker = re.compile(r"//\s*SD_PORT_GEN_end")
 
-    with open(input_file, "r") as file:
-        lines = file.readlines()
+    begin_index, end_index = find_markers(lines, begin_marker, end_marker)
 
-    begin_index = None
-    end_index = None
-    for i, line in enumerate(lines):
-        if begin_marker.search(line):
-            begin_index = i
-        elif end_marker.search(line):
-            end_index = i
-            break
+    del lines[begin_index + 1:end_index]
 
-    if begin_index is not None and end_index is not None:
-        del lines[begin_index + 1:end_index]
+    if port_option == "on":
+        generated_lines = []
 
-        if port_option == "on":
-            generated_lines = []
+        for i in range(N):
+            keywords, vlen_values, io_values = get_cur_port_grp(channel_attrib[i], "m")
+            for keyword, vlen_value, io_value in zip(keywords, vlen_values, io_values):
+                keyword = 'm_' + xprefix + '_' + str(i) + '_' + keyword
 
-            for i in range(N):
-                for keyword, vlen_value, io_value in zip(keywords, vlen_values, io_values):
-                    keyword = 'm_' + xprefix + '_' + str(i) + '_' + keyword
+                if vlen_value <= 1:
+                    vlen_value_str = ' ' * vlen_value_width
+                else:
+                    vlen_value_str = "[{}:0]".format(vlen_value - 1)
 
-                    if vlen_value <= 1:
-                        vlen_value_str = ' ' * vlen_value_width
-                    else:
-                        vlen_value_str = "[{}:0]".format(vlen_value - 1)
+                if io_value == "i":
+                    io_value = "input"
+                elif io_value == "o":
+                    io_value = "output"
 
-                    if io_value == "i":
-                        io_value = "input"
-                    elif io_value == "o":
-                        io_value = "output"
+                formatted_line = "{:<{io_width}}{:<{vlen_width}}{:<{kw_width}},\n".format(
+                    io_value, vlen_value_str, keyword, io_width=io_value_width, vlen_width=vlen_value_width, kw_width=keyword_width
+                )
+                generated_lines.append(formatted_line)
+        lines[begin_index + 1:begin_index + 1] = generated_lines
 
-                    formatted_line = "{:<{io_width}}{:<{vlen_width}}{:<{kw_width}},\n".format(
-                        io_value, vlen_value_str, keyword, io_width=io_value_width, vlen_width=vlen_value_width, kw_width=keyword_width
-                    )
-                    generated_lines.append(formatted_line)
-            lines[begin_index + 1:begin_index + 1] = generated_lines
-        elif port_option == "off":
-            pass
+    elif port_option == "off":
+        pass
 
-        with open(input_file, "w") as file:
-            file.writelines(lines)
+    print(f"Generated {len(lines)} lines.")
 
-        print("Template file has been updated according to PORT option '{}'".format(port_option))
-    else:
-        print("Error: Could not find markers.")
+    return lines
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Update RTL by inserting generated contents between markers.')
@@ -135,4 +161,7 @@ if __name__ == "__main__":
         sys.stderr.write(f"An error occurred: {e}\n")
         sys.exit(1)
 
-    generate_content(args.input_file, args.autoGen)
+    file_old_lines = get_file_lines(args.input_file)
+    generated_lines = generate_content(file_old_lines, args.autoGen)
+    with open(args.input_file, 'w') as file:
+        file.writelines(generated_lines)
