@@ -1,0 +1,5 @@
+apple        , 5 ,red    
+banana       , 1 ,yellow 
+cherry       , 8 ,red    
+date         , 6 ,brown  
+elderberry   , 7 ,purple 
