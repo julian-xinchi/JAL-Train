@@ -2,6 +2,7 @@
 SRC = src\rdc.c
 SRC2 = src\char_enc_dec.c
 SRC3 = src\cht_enc_dec.c
+#SRC4 = src\exci_draw.c
 SRC_TEST = src\test.c
 # SDL 库的位置
 SDLDIR = D:\mingw64\x86_64-w64-mingw32\lib
@@ -19,6 +20,9 @@ comp2: $(SRC2)
 
 comp3: $(SRC3)
 	$(CC) $(SRC3) $(CFLAGS) -o cht_enc_dec.exe
+
+#comp4: $(SRC4)
+#	$(CC) $(SRC4) $(CFLAGS_SDL) -o exci_draw.exe
 
 comptest: $(SRC_TEST)
 	$(CC) $(SRC_TEST) $(CFLAGS) -o test.exe
