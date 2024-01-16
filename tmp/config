@@ -1,0 +1,6 @@
+
+Host github.com
+   user git
+   Hostname ssh.github.com
+   Port 443
+   IdentityFile /c/Users/Peng\ Li/.ssh/id_rsa

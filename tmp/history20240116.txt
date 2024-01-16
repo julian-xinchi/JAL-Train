@@ -1,0 +1,92 @@
+    1  pwd
+    2  exit
+    3  ls
+    4  test
+    5  test.exe
+    6  ./test
+    7  exit
+    8  git remote rename mathfunc-DRAW JAL-Train
+    9  git remote --help
+   10  git remote
+   11  git remote rename julian-xinchi/mathfunc-DRAW julian-xinchi/JAL-Train
+   12  exit
+   13  cd /d/project/HuaShan/rdc_vsc
+   14  pwd
+   15  git status
+   16  git init
+   17  h
+   18  history
+   19  git clone https://github.com/julian-xinchi/JAL-Train.git
+   20  git clone https://github.com/julian-xinchi/JAL-Train.git
+   21  git config --global http.version HTTP/1.1
+   22  git config --global http.sslVerify "false"
+   23  git config --global --get http.proxy
+   24* git config --global -- https.proxy
+   25  git config --global http.proxy socks5 host:port
+   26  git config --global https.proxy socks5 host:port
+   27  git clone https://github.com/julian-xinchi/JAL-Train.git
+   28  git config --global http.proxy host:port
+   29  git config --global https.proxy host:port
+   30  git clone https://github.com/julian-xinchi/JAL-Train.git
+   31  git config --global http.proxy host:7280
+   32  git config --global https.proxy host:7280
+   33  git config --global http.proxy host:7890
+   34  git config --global https.proxy host:7890
+   35  git clone https://github.com/julian-xinchi/JAL-Train.git
+   36  git config 
+   37  git config --global -h
+   38  git config --global -l
+   39  git config --global http.proxy socks5 host:7891
+   40  git config --global https.proxy socks5 host:7891
+   41  git config --global -l
+   42  git clone https://github.com/julian-xinchi/JAL-Train.git
+   43  git config --global --unset http.proxy
+   44  git config --global --unset https.proxy
+   45  git config --global -l
+   46  git config --global --unset https.proxy=host:7890
+   47  git config --global --unset -h
+   48  git config --global --unset-all
+   49  git config --global --unset-all http.proxy
+   50  git config --global --unset-all https.proxy
+   51  git config --global -l
+   52  git clone https://github.com/julian-xinchi/JAL-Train.git
+   53  git clone git@github.com:julian-xinchi/JAL-Train.git
+   54  git clone -h
+   55  git pull
+   56  git pull git@github.com:julian-xinchi/JAL-Train.git master
+   57  git pull git@github.com:julian-xinchi/JAL-Train.git master
+   58  ssh-keygen -t rst -C "julian_albert_lee@hotmail.com"
+   59  ssh-keygen -t rst -C "julian_albert_lee@hotmail.com"
+   60  ssh-keygen -t rst -b 4096 -C "julian_albert_lee@hotmail.com"
+   61  ssh-keygen -t rst -b 4096 -C "julian_albert_lee@hotmail.com"
+   62  ssh-keygen -h
+   63  git pull git@github.com:julian-xinchi/JAL-Train.git master
+   64  ssh -T git@github.com
+   65  ssh -T -p 443 git@github.com
+   66  ssh -T -p 7890 git@github.com
+   67  ssh -T -p 7892 git@github.com
+   68  ssh -T -p 7891 git@github.com
+   69  ssh -T -p 7891 git@github.com
+   70  ssh -T git@github.com
+   71  git push
+   72  git remote add master git@github.com:julian-xinchi/JAL-Train.git
+   73  git pull
+   74  git init
+   75  git clone git@github.com:julian-xinchi/JAL-Train.git
+   76  git pull
+   77  git -T git@github.com
+   78  ssh -T git@github.com
+   79  ssh -T git@github.com
+   80  ssh -T git@github.com
+   81  ssh -T git@github.com
+   82  which vi
+   83  vi /c/Users/Peng\ Li/.ssh/id_rsa
+   84  ssh -T git@github.com
+   85  git pull
+   86  pwd
+   87  git branch --set-upstream master master
+   88  git branch --set-upstream-to master master
+   89  git branch --set-upstream-to=master master
+   90  git init
+   91  history
+   92  history >> history20240116.txt
