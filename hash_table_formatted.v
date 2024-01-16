@@ -10,7 +10,7 @@
 //SD_AXB_DEFINE_end
 
 
-module AB_R52 (
+module AXB_R52 (
 
 //SD_PORT_GEN_begin
 input   [4:0]               m_a_0_AW_apple              ,
