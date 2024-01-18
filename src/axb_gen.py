@@ -183,7 +183,7 @@ def block_codes_deal(lines, generated_lines, begin_marker, end_marker, block_sel
     begin_index, end_index = find_markers(lines, begin_marker, end_marker)
     del lines[begin_index + 1:end_index]
     if block_sel == "on":
-        lines[begin_index + 1:end_index] = generated_lines
+        lines[begin_index + 1:begin_index + 1] = generated_lines
     elif block_sel == "off":
         pass
     return lines
@@ -214,7 +214,7 @@ if __name__ == "__main__":
 
     try:
         MSTN, SLVN, xprefix, mst_attr = extract_parameters(args.input_file)
-        print("MSTN = ", MSTN, "SLVN = ", SLVN)
+        print("MSTN = ", MSTN, "; SLVN = ", SLVN)
         print("Prefix = ", xprefix)
         print("Master Attributes = ", mst_attr)
     except FileNotFoundError:
