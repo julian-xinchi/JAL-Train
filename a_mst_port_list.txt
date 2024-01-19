@@ -1,0 +1,7 @@
+Aw_apple       , i, 5 ,
+Ar_banana      , i, 1
+Aw_Id          , i, 4
+Aw_IdCode      , i, 5
+R_cherry       , o, 8, 0xac
+B_date         , i, 6
+W_elderberry   , o, 7
