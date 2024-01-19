@@ -1,5 +1,0 @@
-AW_apple       , 5 ,i
-AR_banana      , 1 ,i
-R_cherry       , 8 ,o, 0xac
-B_date         , 6 ,i
-W_elderberry   , 7 ,o

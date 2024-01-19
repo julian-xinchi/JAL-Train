@@ -70,42 +70,48 @@ def extract_parameters(input_file):
 
     return MSTN, SLVN, xprefix, mst_attr
 
-def get_cur_port_grp(rw_attr, ms_attr):
-    cr5_port_list_path = 'cr5_port_list.txt'
+def get_cur_port_grp(MSTN, xprefix, rw_attr, ms_attr):
+    mst_port_list_path = xprefix + '_' + 'mst_port_list.txt'
 
     keywords = []
     vlen_values = []
     io_values = []
     default_values = []
 
-    with open(cr5_port_list_path, 'r') as file:
+    with open(mst_port_list_path, 'r') as file:
         for line in file:
             line = line.strip()
             parts = [part.strip() for part in line.split(',')]
 
-            if len(parts) >= 3:
+            if len(parts) == 1 and parts[0] == '':
+                continue
+            elif len(parts) >= 3:
                 if rw_attr == "r":
-                    if re.match(r"^AW_.*", parts[0]) or re.match(r"^W_.*", parts[0]) or re.match(r"^B_.*", parts[0]):
+                    if re.match(r"^Aw_.*", parts[0]) or re.match(r"^W_.*", parts[0]) or re.match(r"^B_.*", parts[0]):
                         continue
                 elif rw_attr == "w":
-                    if re.match(r"^AR_.*", parts[0]) or re.match(r"^R_.*", parts[0]):
+                    if re.match(r"^Ar_.*", parts[0]) or re.match(r"^R_.*", parts[0]):
                         continue
                 keywords.append(parts[0])
-                vlen_values.append(int(parts[1]))
+                if re.match(r".*Id$", parts[0]) and ms_attr == 's':
+                    f_vlen = int(parts[2]) + MSTN.bit_length()
+                else:
+                    f_vlen = int(parts[2])
+                vlen_values.append(f_vlen)
                 if ms_attr == "s":
-                    if parts[2] == "i":
+                    if parts[1] == "i":
                         io_values.append("o")
                     else:
                         io_values.append("i")
                 else:
-                    io_values.append(parts[2])
-                if len(parts) >= 4:
+                    io_values.append(parts[1])
+                if len(parts) >= 4 and not re.match(r"^\s*$", parts[3]):
                     default_values.append(int(parts[3],16))
                 else:
                     default_values.append(int(-1))
             else:
-                print(f"Warning: Invalid line in {cr5_port_list_path}: {line}")
-                sys.stderr.write(f"Warning: Invalid line in {cr5_port_list_path}: {line}\n")
+                print(f"Warning: Invalid line in {mst_port_list_path}: {line}")
+                sys.stderr.write(f"Warning: Invalid line in {mst_port_list_path}: {line}\n")
                 sys.exit(1)
 
     return keywords, vlen_values, io_values, default_values
@@ -135,7 +141,7 @@ def generate_port_lines(MSTN, SLVN, xprefix, mst_attr):
     lines = []
     stub_lines = []
     for i in range(MSTN):
-        keywords, vlen_values, io_values, default_values = get_cur_port_grp(mst_attr[i], "m")
+        keywords, vlen_values, io_values, default_values = get_cur_port_grp(MSTN, xprefix, mst_attr[i], "m")
         # print("keywords = ", keywords, "vlen_values = ", vlen_values, "io_values = ", io_values)
         for keyword, vlen, io, default_val in zip(keywords, vlen_values, io_values, default_values):
             keyword = 'm_' + xprefix + '_' + str(i) + '_' + keyword
@@ -157,7 +163,7 @@ def generate_port_lines(MSTN, SLVN, xprefix, mst_attr):
             )
             lines.append(formatted_line)
     for i in range(SLVN):
-        keywords, vlen_values, io_values, default_values = get_cur_port_grp("rw", "s")
+        keywords, vlen_values, io_values, default_values = get_cur_port_grp(MSTN, xprefix, "rw", "s")
         for keyword, vlen, io in zip(keywords, vlen_values, io_values):
             keyword = 's_' + xprefix + '_' + str(i) + '_' + keyword
 
@@ -191,13 +197,13 @@ def block_codes_deal(lines, generated_lines, begin_marker, end_marker, block_sel
 def generate_port_codes(lines, autoGen_option, stub_option, MSTN, SLVN, xprefix, mst_attr):
     generated_lines, generate_stub_lines = generate_port_lines(MSTN, SLVN, xprefix, mst_attr)
 
-    begin_marker = re.compile(r"//\s*SD_PORT_GEN_begin")
-    end_marker = re.compile(r"//\s*SD_PORT_GEN_end")
+    begin_marker = re.compile(r"//\s*SD_AXB_PORT_GEN_begin")
+    end_marker = re.compile(r"//\s*SD_AXB_PORT_GEN_end")
     lines_0 = block_codes_deal(lines, generated_lines, begin_marker, end_marker, autoGen_option)
 
     if stub_option:
-        begin_marker = re.compile(r"//\s*SD_STUB_GEN_begin")
-        end_marker = re.compile(r"//\s*SD_STUB_GEN_end")
+        begin_marker = re.compile(r"//\s*SD_AXB_STUB_GEN_begin")
+        end_marker = re.compile(r"//\s*SD_AXB_STUB_GEN_end")
         lines = block_codes_deal(lines_0, generate_stub_lines, begin_marker, end_marker, autoGen_option)
     else:
         pass
