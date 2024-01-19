@@ -39,3 +39,6 @@ ADD cht_enc_dec.c program (chinese supported):
   cht_enc_dec.exe file_orig.txt file_enc.txt     --encode file_orig.txt to file_enc.txt
 
   cht_enc_dec.exe file_enc.txt file_dec.txt -r   --decode file_enc.txt to file_dec.txt
+
+2024/1/19
+ADD src/axb.py and its related files a_mst_port_list.txt, hash_table_formatted.v
