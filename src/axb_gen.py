@@ -233,7 +233,7 @@ def verilog_features(value):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Update RTL by inserting generated contents between markers.",
-        formatter_class=argparse.RawTextHelpFormatter  # 使用 RawTextHelpFormatter
+        formatter_class=argparse.RawTextHelpFormatter  #use RawTextHelpFormatter
     )
     #parser = argparse.ArgumentParser(description='Update RTL by inserting generated contents between markers.')
     parser.add_argument('input_file', type=str, help='Path to the input file.')
