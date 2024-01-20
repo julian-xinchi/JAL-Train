@@ -142,8 +142,8 @@ def generate_stub_codes(keyword, vlen, default_value):
     return stub_line
 
 def generate_port_lines(proj_name, MSTN, SLVN, xprefix, mst_attr):
-    keyword_width = 28
-    vlen_value_width = 20
+    keyword_width = 40
+    vlen_value_width = 32
     io_value_width = 8
     # Example logic for generating port lines
     lines = []
@@ -231,7 +231,11 @@ def verilog_features(value):
     return value
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Update RTL by inserting generated contents between markers.')
+    parser = argparse.ArgumentParser(
+        description="Update RTL by inserting generated contents between markers.",
+        formatter_class=argparse.RawTextHelpFormatter  # 使用 RawTextHelpFormatter
+    )
+    #parser = argparse.ArgumentParser(description='Update RTL by inserting generated contents between markers.')
     parser.add_argument('input_file', type=str, help='Path to the input file.')
     #parser.add_argument('--autoGen', type=str, choices=['on', 'off'], \
     #                     required=True, help='Whether to generate contents ("on") or clear all auto-Gen blocks ("off").')
