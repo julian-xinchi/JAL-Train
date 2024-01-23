@@ -3,7 +3,7 @@ Training/Practices SET...
 
 rdc.c -> A simple tool to Draw math function's curve in a GUI
 
-char_enc_dec.c -> a simple enc/dec
+char_enc_dec.c/cht_enc_dec.c -> two simple enc/dec
 
 axb.py -> AXB auto RTL generate script
 
