@@ -241,7 +241,7 @@ if __name__ == "__main__":
     #parser.add_argument('--autoGen', type=str, choices=['on', 'off'], \
     #                     required=True, help='Whether to generate contents ("on") or clear all auto-Gen blocks ("off").')
     parser.add_argument('--autoGen', type=verilog_features, default='n', help=(
-        'Accepts any combination of the characters "p", "i", "w", "f", "a", "s", "n" with no repetitions, representing Verilog features:\n'
+        'Accepts any combination of the characters "p", "i", "w", "f", "a", "s", "n" with no repetitions, representing which part of Verilog Code to generate:\n'
         'p -> port list;\n'
         'i -> instance codes;\n'
         'w -> wire definition;\n'
