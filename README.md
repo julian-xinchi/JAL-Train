@@ -5,6 +5,8 @@ rdc.c -> A simple tool to Draw math function's curve in a GUI
 
 char_enc_dec.c -> a simple enc/dec
 
+axb.py -> AXB auto RTL generate script
+
 # Revision brief
 2023/5/10, create master branch, initial check-in:
 
