@@ -6,5 +6,6 @@
         "wchar.h": "c"
     },
     "makefile.makePath": "D:\\mingw64\\bin\\make.exe",
+    "python.pythonPath": "C:\\Python312\\python.exe",
     "C_Cpp.errorSquiggles": "disabled"
 }
