@@ -102,7 +102,7 @@ def get_cur_port_grp(proj_name, MSTN, xprefix, rw_attr, ms_attr):
                     if re.match(r"^Ar_.*", parts[0]) or re.match(r"^R_.*", parts[0]):
                         continue
                 keywords.append(parts[0])
-                if re.match(r".*Id$", parts[0]) and ms_attr == 's':
+                if re.match(r".*_Id$", parts[0]) and ms_attr == 's':
                     f_vlen = int(parts[2]) + MSTN.bit_length()
                 else:
                     f_vlen = int(parts[2])
