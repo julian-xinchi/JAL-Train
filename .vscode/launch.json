@@ -55,7 +55,7 @@
         },
         {
             "name": "Python: Current file",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "stopOnEntry": true,
             "python": "C:\\Python312\\python.exe",
@@ -66,6 +66,7 @@
                 "${workspaceFolder}\\hash_table_formatted.v",
                 "--autoGen",
                 "ps"
-            ]        }
+            ]
+        }
     ]
 }

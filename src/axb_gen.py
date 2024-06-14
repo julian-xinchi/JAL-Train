@@ -223,6 +223,38 @@ def generate_port_codes(lines, autoGen_option, proj_name, MSTN, SLVN, xprefix, m
 
     return lines
 
+def generate_wire_codes(lines, autoGen_option, MSTN, SLVN):
+    fwidth0 = 8
+    fwidth1 = 32
+    fwidth2 = 40
+    
+    # Regular expressions for the start and end markers
+    begin_marker = re.compile(r"//\s*SD_AXB_WIRE_GEN_begin")
+    end_marker = re.compile(r"//\s*SD_AXB_WIRE_GEN_end")
+
+    # Find the markers and return the processed text and insertion index
+    lines, inserted_index = code_block_proc(lines, begin_marker, end_marker)
+
+    # Content to be inserted
+    wire_lines = []
+    for i in range(MSTN):
+        # Add comment and formatted text for each iteration
+        wire_lines.append("//Master socket {}\n".format(i))
+        # wire_line = f"{:<{fwidth0}}{:<{fwidth1}}{:<{fwidth2}};\n".format("wire", "[contents{}]  ".format(i), "keyword{}".format(i))
+        # wire_line = f"{'wire':<{fwidth0}}{'[contents{i}]':<{fwidth1}}{'keyword{i}':<{fwidth2}};\n"
+        wire_line = f"{'wire':<{fwidth0}}{f'[contents{i}]':<{fwidth1}}{f'keyword{i}':<{fwidth2}};\n"
+        wire_lines.append(wire_line)
+        if i<MSTN-1:
+            wire_lines.append("\n")
+
+    if 'w' in autoGen_option:
+        # Insert the content at the marked position in the text
+        lines[inserted_index + 1: inserted_index + 1] = wire_lines
+    else:
+        pass
+
+    return lines
+
 def verilog_features(value):
     valid_chars = set('piwfasn')
     if not isinstance(value, str) or not set(value).issubset(valid_chars) or len(set(value)) != len(value):
@@ -274,5 +306,6 @@ if __name__ == "__main__":
 
     file_old_lines = get_file_lines(args.input_file)
     generated_lines = generate_port_codes(file_old_lines, args.autoGen, proj_name, MSTN, SLVN, xprefix, mst_attr)
+    generated_lines = generate_wire_codes(generated_lines, args.autoGen, MSTN, SLVN);
     file_old_lines = get_file_lines(args.input_file)
     update_file(args.input_file, file_old_lines, generated_lines)

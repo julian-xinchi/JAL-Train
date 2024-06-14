@@ -14,90 +14,90 @@
 module AXB_R52 (
 
 //SD_AXB_PORT_GEN_begin
-input   [4:0]               m_a_0_Aw_apple              , //
-input                       m_a_0_Ar_banana             , //
-input   [3:0]               m_a_0_Aw_Id                 , //
-input   [4:0]               m_a_0_Aw_IdCode             , //
-output  [7:0]               m_a_0_R_cherry              , //
-input   [5:0]               m_a_0_B_date                , //
-output  [6:0]               m_a_0_W_elderberry          , //
-input   [4:0]               m_a_1_Aw_apple              , //
-input                       m_a_1_Ar_banana             , //
-input   [3:0]               m_a_1_Aw_Id                 , //
-input   [4:0]               m_a_1_Aw_IdCode             , //
-output  [7:0]               m_a_1_R_cherry              , //
-input   [5:0]               m_a_1_B_date                , //
-output  [6:0]               m_a_1_W_elderberry          , //
-input   [4:0]               m_a_2_Aw_apple              , //
-input                       m_a_2_Ar_banana             , //
-input   [3:0]               m_a_2_Aw_Id                 , //
-input   [4:0]               m_a_2_Aw_IdCode             , //
-output  [7:0]               m_a_2_R_cherry              , //
-input   [5:0]               m_a_2_B_date                , //
-output  [6:0]               m_a_2_W_elderberry          , //
-input   [4:0]               m_a_3_Aw_apple              , //
-input                       m_a_3_Ar_banana             , //
-input   [3:0]               m_a_3_Aw_Id                 , //
-input   [4:0]               m_a_3_Aw_IdCode             , //
-output  [7:0]               m_a_3_R_cherry              , //
-input   [5:0]               m_a_3_B_date                , //
-output  [6:0]               m_a_3_W_elderberry          , //
-output  [4:0]               s_a_0_Aw_apple              , //
-output                      s_a_0_Ar_banana             , //
-output  [6:0]               s_a_0_Aw_Id                 , //
-output  [4:0]               s_a_0_Aw_IdCode             , //
-input   [7:0]               s_a_0_R_cherry              , //
-output  [5:0]               s_a_0_B_date                , //
-input   [6:0]               s_a_0_W_elderberry          , //
-output  [4:0]               s_a_1_Aw_apple              , //
-output                      s_a_1_Ar_banana             , //
-output  [6:0]               s_a_1_Aw_Id                 , //
-output  [4:0]               s_a_1_Aw_IdCode             , //
-input   [7:0]               s_a_1_R_cherry              , //
-output  [5:0]               s_a_1_B_date                , //
-input   [6:0]               s_a_1_W_elderberry          , //
-output  [4:0]               s_a_2_Aw_apple              , //
-output                      s_a_2_Ar_banana             , //
-output  [6:0]               s_a_2_Aw_Id                 , //
-output  [4:0]               s_a_2_Aw_IdCode             , //
-input   [7:0]               s_a_2_R_cherry              , //
-output  [5:0]               s_a_2_B_date                , //
-input   [6:0]               s_a_2_W_elderberry          , //
-output  [4:0]               s_a_3_Aw_apple              , //
-output                      s_a_3_Ar_banana             , //
-output  [6:0]               s_a_3_Aw_Id                 , //
-output  [4:0]               s_a_3_Aw_IdCode             , //
-input   [7:0]               s_a_3_R_cherry              , //
-output  [5:0]               s_a_3_B_date                , //
-input   [6:0]               s_a_3_W_elderberry          , //
-output  [4:0]               s_a_4_Aw_apple              , //
-output                      s_a_4_Ar_banana             , //
-output  [6:0]               s_a_4_Aw_Id                 , //
-output  [4:0]               s_a_4_Aw_IdCode             , //
-input   [7:0]               s_a_4_R_cherry              , //
-output  [5:0]               s_a_4_B_date                , //
-input   [6:0]               s_a_4_W_elderberry          , //
-output  [4:0]               s_a_5_Aw_apple              , //
-output                      s_a_5_Ar_banana             , //
-output  [6:0]               s_a_5_Aw_Id                 , //
-output  [4:0]               s_a_5_Aw_IdCode             , //
-input   [7:0]               s_a_5_R_cherry              , //
-output  [5:0]               s_a_5_B_date                , //
-input   [6:0]               s_a_5_W_elderberry          , //
-output  [4:0]               s_a_6_Aw_apple              , //
-output                      s_a_6_Ar_banana             , //
-output  [6:0]               s_a_6_Aw_Id                 , //
-output  [4:0]               s_a_6_Aw_IdCode             , //
-input   [7:0]               s_a_6_R_cherry              , //
-output  [5:0]               s_a_6_B_date                , //
-input   [6:0]               s_a_6_W_elderberry          , //
-output  [4:0]               s_a_7_Aw_apple              , //
-output                      s_a_7_Ar_banana             , //
-output  [6:0]               s_a_7_Aw_Id                 , //
-output  [4:0]               s_a_7_Aw_IdCode             , //
-input   [7:0]               s_a_7_R_cherry              , //
-output  [5:0]               s_a_7_B_date                , //
-input   [6:0]               s_a_7_W_elderberry          , //
+input   [4:0]                           m_a_0_Aw_apple                          , //
+input                                   m_a_0_Ar_banana                         , //
+input   [3:0]                           m_a_0_Aw_Id                             , //
+input   [4:0]                           m_a_0_Aw_IdCode                         , //
+output  [7:0]                           m_a_0_R_cherry                          , //
+input   [5:0]                           m_a_0_B_date                            , //
+output  [6:0]                           m_a_0_W_elderberry                      , //
+input   [4:0]                           m_a_1_Aw_apple                          , //
+input                                   m_a_1_Ar_banana                         , //
+input   [3:0]                           m_a_1_Aw_Id                             , //
+input   [4:0]                           m_a_1_Aw_IdCode                         , //
+output  [7:0]                           m_a_1_R_cherry                          , //
+input   [5:0]                           m_a_1_B_date                            , //
+output  [6:0]                           m_a_1_W_elderberry                      , //
+input   [4:0]                           m_a_2_Aw_apple                          , //
+input                                   m_a_2_Ar_banana                         , //
+input   [3:0]                           m_a_2_Aw_Id                             , //
+input   [4:0]                           m_a_2_Aw_IdCode                         , //
+output  [7:0]                           m_a_2_R_cherry                          , //
+input   [5:0]                           m_a_2_B_date                            , //
+output  [6:0]                           m_a_2_W_elderberry                      , //
+input   [4:0]                           m_a_3_Aw_apple                          , //
+input                                   m_a_3_Ar_banana                         , //
+input   [3:0]                           m_a_3_Aw_Id                             , //
+input   [4:0]                           m_a_3_Aw_IdCode                         , //
+output  [7:0]                           m_a_3_R_cherry                          , //
+input   [5:0]                           m_a_3_B_date                            , //
+output  [6:0]                           m_a_3_W_elderberry                      , //
+output  [4:0]                           s_a_0_Aw_apple                          , //
+output                                  s_a_0_Ar_banana                         , //
+output  [6:0]                           s_a_0_Aw_Id                             , //
+output  [4:0]                           s_a_0_Aw_IdCode                         , //
+input   [7:0]                           s_a_0_R_cherry                          , //
+output  [5:0]                           s_a_0_B_date                            , //
+input   [6:0]                           s_a_0_W_elderberry                      , //
+output  [4:0]                           s_a_1_Aw_apple                          , //
+output                                  s_a_1_Ar_banana                         , //
+output  [6:0]                           s_a_1_Aw_Id                             , //
+output  [4:0]                           s_a_1_Aw_IdCode                         , //
+input   [7:0]                           s_a_1_R_cherry                          , //
+output  [5:0]                           s_a_1_B_date                            , //
+input   [6:0]                           s_a_1_W_elderberry                      , //
+output  [4:0]                           s_a_2_Aw_apple                          , //
+output                                  s_a_2_Ar_banana                         , //
+output  [6:0]                           s_a_2_Aw_Id                             , //
+output  [4:0]                           s_a_2_Aw_IdCode                         , //
+input   [7:0]                           s_a_2_R_cherry                          , //
+output  [5:0]                           s_a_2_B_date                            , //
+input   [6:0]                           s_a_2_W_elderberry                      , //
+output  [4:0]                           s_a_3_Aw_apple                          , //
+output                                  s_a_3_Ar_banana                         , //
+output  [6:0]                           s_a_3_Aw_Id                             , //
+output  [4:0]                           s_a_3_Aw_IdCode                         , //
+input   [7:0]                           s_a_3_R_cherry                          , //
+output  [5:0]                           s_a_3_B_date                            , //
+input   [6:0]                           s_a_3_W_elderberry                      , //
+output  [4:0]                           s_a_4_Aw_apple                          , //
+output                                  s_a_4_Ar_banana                         , //
+output  [6:0]                           s_a_4_Aw_Id                             , //
+output  [4:0]                           s_a_4_Aw_IdCode                         , //
+input   [7:0]                           s_a_4_R_cherry                          , //
+output  [5:0]                           s_a_4_B_date                            , //
+input   [6:0]                           s_a_4_W_elderberry                      , //
+output  [4:0]                           s_a_5_Aw_apple                          , //
+output                                  s_a_5_Ar_banana                         , //
+output  [6:0]                           s_a_5_Aw_Id                             , //
+output  [4:0]                           s_a_5_Aw_IdCode                         , //
+input   [7:0]                           s_a_5_R_cherry                          , //
+output  [5:0]                           s_a_5_B_date                            , //
+input   [6:0]                           s_a_5_W_elderberry                      , //
+output  [4:0]                           s_a_6_Aw_apple                          , //
+output                                  s_a_6_Ar_banana                         , //
+output  [6:0]                           s_a_6_Aw_Id                             , //
+output  [4:0]                           s_a_6_Aw_IdCode                         , //
+input   [7:0]                           s_a_6_R_cherry                          , //
+output  [5:0]                           s_a_6_B_date                            , //
+input   [6:0]                           s_a_6_W_elderberry                      , //
+output  [4:0]                           s_a_7_Aw_apple                          , //
+output                                  s_a_7_Ar_banana                         , //
+output  [6:0]                           s_a_7_Aw_Id                             , //
+output  [4:0]                           s_a_7_Aw_IdCode                         , //
+input   [7:0]                           s_a_7_R_cherry                          , //
+output  [5:0]                           s_a_7_B_date                            , //
+input   [6:0]                           s_a_7_W_elderberry                      , //
 //SD_AXB_PORT_GEN_end
 
 input                       clk                         , //
@@ -105,6 +105,20 @@ input                       rst_n                       , //
 input                       tm                            //
 
 );
+
+//SD_AXB_WIRE_GEN_begin
+//Master socket 0
+wire    [contents0]                     keyword0                                ;
+
+//Master socket 1
+wire    [contents1]                     keyword1                                ;
+
+//Master socket 2
+wire    [contents2]                     keyword2                                ;
+
+//Master socket 3
+wire    [contents3]                     keyword3                                ;
+//SD_AXB_WIRE_GEN_end
 
 //SD_AXB_CONNECT_begin
 //SD_AXB_CONNECT_end
