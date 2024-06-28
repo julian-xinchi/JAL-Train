@@ -44,3 +44,6 @@ ADD cht_enc_dec.c program (chinese supported):
 
 2024/1/19
 ADD src/axb.py and its related files a_mst_port_list.txt, hash_table_formatted.v
+
+2024/6/28
+ADD several python excercises, for excel processing in python: pip install openpyxl
