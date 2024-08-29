@@ -67,11 +67,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     switch (uMsg) {
         case WM_CREATE: {
             CreateWindowW(L"STATIC", L"Input File:", WS_VISIBLE | WS_CHILD, 10, 10, 80, 20, hwnd, NULL, NULL, NULL);
-            hwndInputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 100, 10, 300, 20, hwnd, NULL, NULL, NULL);
+            hwndInputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, 100, 10, 300, 20, hwnd, NULL, NULL, NULL);
             CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 10, 80, 20, hwnd, (HMENU)1, NULL, NULL);
 
             CreateWindowW(L"STATIC", L"Output File:", WS_VISIBLE | WS_CHILD, 10, 40, 80, 20, hwnd, NULL, NULL, NULL);
-            hwndOutputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 100, 40, 300, 20, hwnd, NULL, NULL, NULL);
+            hwndOutputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, 100, 40, 300, 20, hwnd, NULL, NULL, NULL);
             CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 40, 80, 20, hwnd, (HMENU)2, NULL, NULL);
 
             hwndRestoreMode = CreateWindowW(L"BUTTON", L"Restore Mode", WS_VISIBLE | WS_CHILD | BS_CHECKBOX, 10, 70, 120, 20, hwnd, (HMENU)4, NULL, NULL);
