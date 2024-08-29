@@ -1,4 +1,5 @@
-#include <windows.h>
+﻿#include <windows.h>
+#include <winuser.h>
 #include <commdlg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,22 +21,24 @@ void BrowseFile(HWND hwnd, bool saveMode, HWND hwndTarget);
 
 // 主函数
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    const wchar_t CLASS_NAME[] = L"Sample Window Class";
+    const wchar_t CLASS_NAME[] = L"myWindowClass";
+    LPCWSTR WINDOW_TITLE = L"FileProcessing";
 
-    WNDCLASSW wc = { };
+    WNDCLASSEXW wc = { };
 
+    wc.cbSize = sizeof(WNDCLASSEXW);
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
 
-    RegisterClassW(&wc);
+    RegisterClassExW(&wc);
 
     HWND hwnd = CreateWindowExW(
         0,
         CLASS_NAME,
-        L"File Processing",
+        WINDOW_TITLE,
         WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 500, 200,
+        CW_USEDEFAULT, CW_USEDEFAULT, 520, 200,
         NULL,
         NULL,
         hInstance,
@@ -45,6 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (hwnd == NULL) {
         return 0;
     }
+    //SetWindowTextW(hwnd, WINDOW_TITLE);  // 再次设置窗口标题，以确保正确性
 
     ShowWindow(hwnd, nCmdShow);
 
@@ -64,15 +68,15 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         case WM_CREATE: {
             CreateWindowW(L"STATIC", L"Input File:", WS_VISIBLE | WS_CHILD, 10, 10, 80, 20, hwnd, NULL, NULL, NULL);
             hwndInputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 100, 10, 300, 20, hwnd, NULL, NULL, NULL);
-            CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 10, 60, 20, hwnd, (HMENU)1, NULL, NULL);
+            CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 10, 80, 20, hwnd, (HMENU)1, NULL, NULL);
 
             CreateWindowW(L"STATIC", L"Output File:", WS_VISIBLE | WS_CHILD, 10, 40, 80, 20, hwnd, NULL, NULL, NULL);
             hwndOutputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 100, 40, 300, 20, hwnd, NULL, NULL, NULL);
-            CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 40, 60, 20, hwnd, (HMENU)2, NULL, NULL);
+            CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 40, 80, 20, hwnd, (HMENU)2, NULL, NULL);
 
             hwndRestoreMode = CreateWindowW(L"BUTTON", L"Restore Mode", WS_VISIBLE | WS_CHILD | BS_CHECKBOX, 10, 70, 120, 20, hwnd, (HMENU)4, NULL, NULL);
 
-            CreateWindowW(L"BUTTON", L"Process", WS_VISIBLE | WS_CHILD, 10, 100, 80, 20, hwnd, (HMENU)3, NULL, NULL);
+            CreateWindowW(L"BUTTON", L"Process", WS_VISIBLE | WS_CHILD, 10, 100, 80, 40, hwnd, (HMENU)3, NULL, NULL);
         }
         break;
 
@@ -111,7 +115,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             return 0;
     }
 
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
 // 浏览文件函数
