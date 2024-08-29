@@ -47,3 +47,6 @@ ADD src/axb.py and its related files a_mst_port_list.txt, hash_table_formatted.v
 
 2024/6/28
 ADD several python excercises, for excel processing in python: pip install openpyxl
+
+2024/8/29
+ADD src/cht_codec_gui.c
