@@ -6,20 +6,20 @@
 #include <wchar.h>
 #include <stdbool.h>  // Add this line to include the C99 boolean type
 
-// 常量定义
+// Constants
 #define MAX_PATH_LENGTH 260
 
-// 全局变量
+// Global variables
 HWND hwndInputFile;
 HWND hwndOutputFile;
 HWND hwndRestoreMode;
 
-// 函数声明
+// Function prototypes
 void ProcessFiles(const wchar_t* inputFile, const wchar_t* outputFile, int restoreMode);
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void BrowseFile(HWND hwnd, bool saveMode, HWND hwndTarget);
 
-// 主函数
+// Main function
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     const wchar_t CLASS_NAME[] = L"myWindowClass";
     LPCWSTR WINDOW_TITLE = L"FileProcessing";
@@ -48,7 +48,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     if (hwnd == NULL) {
         return 0;
     }
-    //SetWindowTextW(hwnd, WINDOW_TITLE);  // 再次设置窗口标题，以确保正确性
 
     ShowWindow(hwnd, nCmdShow);
 
@@ -62,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     return 0;
 }
 
-// 窗口过程函数
+// Window procedure
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_CREATE: {
@@ -78,7 +77,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             CreateWindowW(L"BUTTON", L"Process", WS_VISIBLE | WS_CHILD, 10, 100, 80, 40, hwnd, (HMENU)3, NULL, NULL);
 
-            // 添加交换按钮
+            // Add swap button
             CreateWindowW(L"BUTTON", L"Swap", WS_VISIBLE | WS_CHILD, 410, 70, 80, 20, hwnd, (HMENU)5, NULL, NULL);
         }
         break;
@@ -113,11 +112,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     wchar_t inputFile[MAX_PATH_LENGTH];
                     wchar_t outputFile[MAX_PATH_LENGTH];
 
-                    // 获取文本框内容
+                    // Get the contents of the two text boxes
                     GetWindowTextW(hwndInputFile, inputFile, MAX_PATH_LENGTH);
                     GetWindowTextW(hwndOutputFile, outputFile, MAX_PATH_LENGTH);
 
-                    // 交换文本框内容
+                    // Swap the contents of the two text boxes
                     SetWindowTextW(hwndInputFile, outputFile);
                     SetWindowTextW(hwndOutputFile, inputFile);
                 }
@@ -134,7 +133,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
-// 浏览文件函数
+// Function to browse for a file
 void BrowseFile(HWND hwnd, bool saveMode, HWND hwndTarget) {
     OPENFILENAMEW ofn;
     wchar_t szFile[MAX_PATH_LENGTH] = L"";
@@ -156,19 +155,19 @@ void BrowseFile(HWND hwnd, bool saveMode, HWND hwndTarget) {
     }
 }
 
-// 文件处理函数
+// Function to process files based on restore mode
 void ProcessFiles(const wchar_t* inputFile, const wchar_t* outputFile, int restoreMode) {
     FILE *in, *out;
     wchar_t ch;
 
-    // 打开输入文件
+    // Open input file
     in = _wfopen(inputFile, L"rt, ccs=UTF-8");
     if (in == NULL) {
         MessageBoxW(NULL, L"Failed to open input file!", L"Error", MB_OK);
         return;
     }
 
-    // 打开输出文件
+    // Open output file
     out = _wfopen(outputFile, L"wt, ccs=UTF-8");
     if (out == NULL) {
         MessageBoxW(NULL, L"Failed to open output file!", L"Error", MB_OK);
@@ -176,7 +175,7 @@ void ProcessFiles(const wchar_t* inputFile, const wchar_t* outputFile, int resto
         return;
     }
 
-    // 读取输入文件内容并写入输出文件
+    // Read input file and write to output file, optionally reversing the encoding
     while ((ch = fgetwc(in)) != WEOF) {
         if (restoreMode) {
             if (ch != '\n' && ch != '\r') {
@@ -190,7 +189,7 @@ void ProcessFiles(const wchar_t* inputFile, const wchar_t* outputFile, int resto
         fputwc(ch, out);
     }
 
-    // 关闭文件
+    // Close files
     fclose(in);
     fclose(out);
 
