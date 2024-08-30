@@ -106,7 +106,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     BrowseFile(hwnd, false, hwndInputFile);
                     break;
                 case 2: // Output File Browse
-                    BrowseFile(hwnd, true, hwndOutputFile);
+                    BrowseFile(hwnd, false, hwndOutputFile);
                     break;
                 case 3: { // Process
                         wchar_t inputFile[MAX_PATH_LENGTH];
