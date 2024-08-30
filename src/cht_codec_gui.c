@@ -77,6 +77,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             hwndRestoreMode = CreateWindowW(L"BUTTON", L"Restore Mode", WS_VISIBLE | WS_CHILD | BS_CHECKBOX, 10, 70, 120, 20, hwnd, (HMENU)4, NULL, NULL);
 
             CreateWindowW(L"BUTTON", L"Process", WS_VISIBLE | WS_CHILD, 10, 100, 80, 40, hwnd, (HMENU)3, NULL, NULL);
+
+            // 添加交换按钮
+            CreateWindowW(L"BUTTON", L"Swap", WS_VISIBLE | WS_CHILD, 410, 70, 80, 20, hwnd, (HMENU)5, NULL, NULL);
         }
         break;
 
@@ -106,6 +109,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         SendMessage(hwndRestoreMode, BM_SETCHECK, BST_CHECKED, 0);
                     }
                     break;
+                case 5: { // Swap
+                    wchar_t inputFile[MAX_PATH_LENGTH];
+                    wchar_t outputFile[MAX_PATH_LENGTH];
+
+                    // 获取文本框内容
+                    GetWindowTextW(hwndInputFile, inputFile, MAX_PATH_LENGTH);
+                    GetWindowTextW(hwndOutputFile, outputFile, MAX_PATH_LENGTH);
+
+                    // 交换文本框内容
+                    SetWindowTextW(hwndInputFile, outputFile);
+                    SetWindowTextW(hwndOutputFile, inputFile);
+                }
+                break;
             }
         }
         break;
