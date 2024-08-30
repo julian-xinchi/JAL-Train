@@ -13,6 +13,7 @@
 HWND hwndInputFile;
 HWND hwndOutputFile;
 HWND hwndRestoreMode;
+HBRUSH hBrushStatic;
 
 // Function prototypes
 void ProcessFiles(const wchar_t* inputFile, const wchar_t* outputFile, int restoreMode);
@@ -30,6 +31,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
+    wc.hbrBackground = (HBRUSH)(GetStockObject(WHITE_BRUSH));
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wc.style = CS_HREDRAW | CS_VREDRAW;
 
     RegisterClassExW(&wc);
 
@@ -65,6 +70,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_CREATE: {
+            // Create a brush and set the color
+            //hBrushStatic = CreateSolidBrush(RGB(173, 216, 230));
+            hBrushStatic = CreateSolidBrush(RGB(255, 255, 255));
+
             CreateWindowW(L"STATIC", L"Input File:", WS_VISIBLE | WS_CHILD, 10, 10, 80, 20, hwnd, NULL, NULL, NULL);
             hwndInputFile = CreateWindowW(L"EDIT", L"", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_AUTOHSCROLL, 100, 10, 300, 20, hwnd, NULL, NULL, NULL);
             CreateWindowW(L"BUTTON", L"Browse...", WS_VISIBLE | WS_CHILD, 410, 10, 80, 20, hwnd, (HMENU)1, NULL, NULL);
@@ -81,6 +90,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             CreateWindowW(L"BUTTON", L"Swap", WS_VISIBLE | WS_CHILD, 410, 70, 80, 20, hwnd, (HMENU)5, NULL, NULL);
         }
         break;
+
+        case WM_CTLCOLORSTATIC: {
+            HDC hdcStatic = (HDC) wParam;
+            // Set the background color
+            //SetBkColor(hdcStatic, RGB(173, 216, 230));
+            SetBkColor(hdcStatic, RGB(255, 255, 255));
+            return (INT_PTR)hBrushStatic;
+        }
 
         case WM_COMMAND: {
             switch (LOWORD(wParam)) {
@@ -126,6 +143,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         break;
 
         case WM_DESTROY:
+            DeleteObject(hBrushStatic);
             PostQuitMessage(0);
             return 0;
     }
