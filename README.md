@@ -50,3 +50,6 @@ ADD several python excercises, for excel processing in python: pip install openp
 
 2024/8/29
 ADD src/cht_codec_gui.c
+
+2024/12/4
+Improve src/mcore_comp.py: add option "-r"/"--size" and basic input file check
