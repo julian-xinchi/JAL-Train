@@ -32,13 +32,14 @@ mapping = {
     'SKIPN0': 0x28,
     'SKIPN1': 0x38,
     'GOTO': 0x48,
-    'GOTO_OFST': 0x58,
-    'GOTO_OFSTN': 0x68,
+    'GOTO_PI': 0x58,
+    'GOTO_NI': 0x68,
+    'GOTO_OFST': 0x78,
     'HALT': 0x88,
     'LOAD': 0x01,
-    'LOAD_OFST': 0x11,
+    'LOAD_I': 0x11,
     'STORE': 0x09,
-    'STORE_OFST': 0x19,
+    'STORE_I': 0x19,
     'LSF': 0x02,
     'RSF': 0x12,
     'DRSF': 0x06,
@@ -106,6 +107,10 @@ try:
                 lines.append(stripped_line)
             else:
                 continue
+
+            if ('MOV1' in line or 'MOVT' in line) and any(x in line for x in ['d0', 'd1', 'd2', 'd3', 'c0', 'c1']):
+                print(f"Syntax error in line: {line_number}, instruction can not be used with d0-d3/c0-c1")
+                sys.exit(1)
 
             words = [word for part in stripped_line.split(',') for word in part.split()]
             for word in words:
