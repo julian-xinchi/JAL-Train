@@ -149,6 +149,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             return 0;
     }
 
+    // Note: This function below needs to have the W suffix,
+    //       otherwise the title of the GUI window will only display one character, weird.
     return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 

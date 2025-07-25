@@ -227,7 +227,7 @@ def generate_wire_codes(lines, autoGen_option, MSTN, SLVN):
     fwidth0 = 8
     fwidth1 = 32
     fwidth2 = 40
-    
+
     # Regular expressions for the start and end markers
     begin_marker = re.compile(r"//\s*SD_AXB_WIRE_GEN_begin")
     end_marker = re.compile(r"//\s*SD_AXB_WIRE_GEN_end")
