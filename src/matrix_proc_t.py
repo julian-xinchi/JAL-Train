@@ -7,29 +7,29 @@ def read_matrix_from_file(file_path):
 #def extract_matrix_and_count_ones(file_content):
 #    start_marker = "//SD_AXB_DEFINE_begin"
 #    end_marker = "//SD_AXB_DEFINE_end"
-#    
+#
 #    start_index = file_content.find(start_marker) + len(start_marker)
 #    end_index = file_content.find(end_marker)
 #    matrix_content = file_content[start_index:end_index].strip()
 #
 #    matrix = [list(line) for line in matrix_content.splitlines() if line]
-#    
+#
 #    # 统计每行中'1'的数量
 #    row_counts = [row.count('1') for row in matrix]
-#    
+#
 #    # 统计每列中'1'的数量
 #    col_counts = [sum(1 for row in matrix if row[col] == '1') for col in range(len(matrix[0]))]
-#    
+#
 #    return matrix, row_counts, col_counts
 
 def extract_matrix_and_count_ones(file_content):
     start_marker = "//SD_AXB_DEFINE_begin"
     end_marker = "//SD_AXB_DEFINE_end"
-    
+
     # 定位开始和结束标记
     start_index = file_content.find(start_marker) + len(start_marker)
     end_index = file_content.find(end_marker)
-    
+
     # 提取标记之间的内容
     matrix_content = file_content[start_index:end_index].strip()
 
@@ -41,10 +41,10 @@ def extract_matrix_and_count_ones(file_content):
 
     # 统计每行中'1'的数量
     row_counts = [row.count('1') for row in matrix]
-    
+
     # 统计每列中'1'的数量
     col_counts = [sum(1 for row in matrix if row[col] == '1') for col in range(len(matrix[0]))]
-    
+
     return matrix, row_counts, col_counts
 
 # File path
@@ -66,13 +66,13 @@ print(matrix[0])
 def find_nth_one(matrix, row_index, col_index):
     if matrix[row_index][col_index] != '1':
         return None, None  # 如果指定位置不是 '1'，返回 None
-    
+
     # 在指定行中计算 '1' 的位置
     row_ones_count = matrix[row_index][:col_index].count('1') + 1
-    
+
     # 在指定列中计算 '1' 的位置
     col_ones_count = sum(1 for i in range(row_index) if matrix[i][col_index] == '1') + 1
-    
+
     return row_ones_count, col_ones_count
 
 
@@ -96,10 +96,10 @@ print(xx)
 def find_ones_in_row_and_columns(matrix, selected_row, selected_columns):
     # 获取选定行中所有'1'的索引
     row_ones_indices = [col_index for col_index, value in enumerate(matrix[selected_row]) if value == '1']
-    
+
     # 获取所有选定列中'1'的索引
     columns_ones_indices = [row_index for row_index, row in enumerate(matrix) if row[selected_columns] == '1']
-    
+
     return row_ones_indices, columns_ones_indices
 
 # Example usage:
@@ -117,3 +117,4 @@ print("Indices of '1's in the selected row:", row_ones_indices)
 row_ones_indices_size = len(row_ones_indices)
 print("Size of '1's in the selected row:", row_ones_indices_size)
 print("Indices of '1's in the selected columns:", columns_ones_indices)
+ 
