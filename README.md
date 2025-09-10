@@ -53,3 +53,8 @@ ADD src/cht_codec_gui.c
 
 2024/12/4
 Improve src/mcore_comp.py: add option "-r"/"--size" and basic input file check
+
+2025/9/10
+ADD tmp/note.txt to backup work note
+
+
