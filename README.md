@@ -57,4 +57,7 @@ Improve src/mcore_comp.py: add option "-r"/"--size" and basic input file check
 2025/9/10
 ADD tmp/note.txt to backup work note
 
+2025/11/20
+ADD src/extrac_addr_def.py, and complete AXB parameter definition extractor script(excel_proc.py).
+
 
