@@ -40,6 +40,7 @@ header_row = 2
 data_start_row = 3
 header_re = re.compile(r'^s_.*_\d+$', re.IGNORECASE)          # match "s_*_\\d"
 hex_re = re.compile(r'^0[xX][0-9A-Fa-f]{4}_[0-9A-Fa-f]{4}$')     # match "0xxxxx_xxxx" hex format
+hex1_re = re.compile(r'^[0-9A-Fa-f]{4}_[0-9A-Fa-f]{4}$')     # match "xxxx_xxxx" hex format
 
 # find matching columns by header in row 2
 matching_cols = []
@@ -69,7 +70,7 @@ if matching_cols:
                 s = str(cv).strip()
                 if s.upper() == 'NA':
                     break
-                if hex_re.match(s):
+                if hex_re.match(s) or hex1_re.match(s):
                     vals.append(s)
                 r += 1
 
@@ -79,8 +80,14 @@ if matching_cols:
                 data1 = vals[grp_i + 1]
                 group_no = grp_i // 2
                 # remove leading 0x/0X if present
-                data0_clean = re.sub(r'^0[xX]', '', data0)
-                data1_clean = re.sub(r'^0[xX]', '', data1)
+                if hex_re.match(data0):
+                    data0_clean = re.sub(r'^0[xX]', '', data0)
+                else:
+                    data0_clean = data0
+                if hex_re.match(data1):
+                    data1_clean = re.sub(r'^0[xX]', '', data1)
+                else:
+                    data1_clean = data1
                 file.write(f"{f'localparam S{s_digit}_REGION{group_no}_SA ':<40}{f'= 32\'h{data0_clean}':<40};\n")
                 file.write(f"{f'localparam S{s_digit}_REGION{group_no}_EA ':<40}{f'= 32\'h{data1_clean}':<40};\n")
 
