@@ -39,9 +39,9 @@ for row in sheet['A']:
 header_row = 2
 data_start_row = 3
 header_re = re.compile(r'^s_.*_\d+$', re.IGNORECASE)          # match "s_*_\\d"
-hex_re = re.compile(r'^0[xX][0-9A-Fa-f]{4}_[0-9A-Fa-f]{4}$')     # match "0xxxxx_xxxx" hex format
-hex1_re = re.compile(r'^[0-9A-Fa-f]{4}_[0-9A-Fa-f]{4}$')     # match "xxxx_xxxx" hex format
-hex2_re = re.compile(r'^(0[xX])?([0-9A-Fa-f]{8})$')     # match "0xHHHHHHHH" or "HHHHHHHH" hex format
+hex_re = re.compile(r'^0[xX][0-9A-Fa-f]{1,5}_[0-9A-Fa-f]{4,5}$')     # match "0xxxxx_xxxx" hex format
+hex1_re = re.compile(r'^[0-9A-Fa-f]{1,5}_[0-9A-Fa-f]{4,5}$')     # match "xxxx_xxxx" hex format
+hex2_re = re.compile(r'^(0[xX])?([0-9A-Fa-f]{1,9})$')     # match "0xHHHHHHHH" or "HHHHHHHH" hex format
 
 # find matching columns by header in row 2
 matching_cols = []
@@ -71,12 +71,8 @@ if matching_cols:
                 s = str(cv).strip()
                 if s.upper() == 'NA':
                     break
-                if hex_re.match(s) or hex1_re.match(s):
+                if hex_re.match(s) or hex1_re.match(s) or hex2_re.match(s):
                     vals.append(s)
-                elif hex2_re.match(s):
-                    prefix, hex_part = hex2_re.match(s).groups()
-                    formatted = hex_part[:4] + '_' + hex_part[4:]  # format as xxxx_xxxx
-                    vals.append(formatted)
                 r += 1
 
             # every two values form a group; ignore dangling last if odd count
@@ -85,8 +81,11 @@ if matching_cols:
                 data1 = vals[grp_i + 1]
                 group_no = grp_i // 2
                 # remove leading 0x/0X if present
-                data0_clean = re.sub(r'^0[xX]', '', data0)
-                data1_clean = re.sub(r'^0[xX]', '', data1)
+                # remove leading 0x/0X, remove underscores, pad with zeros to 8 digits, format as xxxx_xxxx
+                data0_clean = re.sub(r'^0[xX]', '', data0).replace('_', '').zfill(8)
+                data0_clean = data0_clean[:4] + '_' + data0_clean[4:]
+                data1_clean = re.sub(r'^0[xX]', '', data1).replace('_', '').zfill(8)
+                data1_clean = data1_clean[:4] + '_' + data1_clean[4:]
                 file.write(f"{f'localparam S{s_digit}_REGION{group_no}_SA ':<40}{f'= 32\'h{data0_clean}':<40};\n")
                 file.write(f"{f'localparam S{s_digit}_REGION{group_no}_EA ':<40}{f'= 32\'h{data1_clean}':<40};\n")
 
