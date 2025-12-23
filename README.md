@@ -60,4 +60,6 @@ ADD tmp/note.txt to backup work note
 2025/11/20
 ADD src/extrac_addr_def.py, and complete AXB parameter definition extractor script(excel_proc.py).
 
+2025/12/23
+src/extrac_addr_def.py: improve the script robustness for corner cases
 
