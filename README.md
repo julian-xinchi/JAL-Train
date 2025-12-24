@@ -63,3 +63,7 @@ ADD src/extrac_addr_def.py, and complete AXB parameter definition extractor scri
 2025/12/23
 src/extrac_addr_def.py: improve the script robustness for corner cases
 
+2025/12/24
+ADD src/extrac_pipeline_def.py: extract pipeline definition from excel file, and generate Verilog parameter definition
+ps: One example of excel file is in tmp/ folder
+
