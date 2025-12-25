@@ -67,3 +67,7 @@ src/extrac_addr_def.py: improve the script robustness for corner cases
 ADD src/extrac_pipeline_def.py: extract pipeline definition from excel file, and generate Verilog parameter definition
 ps: One example of excel file is in tmp/ folder
 
+2025/12/25
+Major improvement to src/extrac_pipeline_def.py using VSC/TRAE's AI,
+optimize the code structure, add comments, etc.
+
