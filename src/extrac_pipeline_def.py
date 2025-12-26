@@ -34,7 +34,7 @@ def print_boxed(message, *, border_char="@", file=None):
     msg = str(message)
     inner = " " + msg + " "
     top_bottom = border_char * (len(inner) + 2)
-    if len(inner) > 64:
+    if file is None:
         print(msg, file=file)
     else:
         print(top_bottom, file=file)
