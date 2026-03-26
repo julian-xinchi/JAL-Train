@@ -71,3 +71,6 @@ ps: One example of excel file is in tmp/ folder
 Major improvement to src/extrac_pipeline_def.py using VSC/TRAE's AI,
 optimize the code structure, add comments, etc.
 
+2026/3/26
+Create new script file src/pdf_hf_proc.py to process pdf file, the header/footer will be removed etc.
+
