@@ -16,44 +16,44 @@ def renumber_toc_entries(toc_entries):
     """Renumber TOC entries to maintain consecutive numbering after deletions"""
     if not toc_entries:
         return toc_entries, {}
-    
+
     # Group entries by level
     level_counters = {}  # level -> current counter
     renumbered_entries = []
     numbering_map = {}  # old_numbering -> new_numbering
-    
+
     for level, title, page in toc_entries:
         # Extract old numbering from title
         old_numbering_match = re.match(r'^(\d+(?:\.\d+)*)', title.strip())
         old_numbering = old_numbering_match.group(1) if old_numbering_match else ""
-        
+
         # Initialize counter for this level if not exists
         if level not in level_counters:
             level_counters[level] = 1
         else:
             level_counters[level] += 1
-        
+
         # Reset counters for deeper levels
         for deeper_level in range(level + 1, MAX_TOC_LEVEL + 1):
             if deeper_level in level_counters:
                 level_counters[deeper_level] = 0
-        
+
         # Build new numbering prefix
         numbering = []
         for l in range(1, level + 1):
             numbering.append(str(level_counters.get(l, 1)))
         numbering_prefix = '.'.join(numbering)
-        
+
         # Remove old numbering and add new one
         clean_title_text = clean_title(title)
         new_title = f"{numbering_prefix} {clean_title_text}"
-        
+
         # Store mapping for cross-references
         if old_numbering:
             numbering_map[old_numbering] = numbering_prefix
-        
+
         renumbered_entries.append([level, new_title, page])
-    
+
     return renumbered_entries, numbering_map
 
 def parse_pages(pages_str):
@@ -72,7 +72,7 @@ def update_cross_references(doc, numbering_map):
     """Update cross-references in the document text"""
     if not numbering_map:
         return
-    
+
     # Common cross-reference patterns
     patterns = [
         r'\bsection\s+(\d+(?:\.\d+)*)\b',
@@ -88,48 +88,48 @@ def update_cross_references(doc, numbering_map):
         r'\bsee\s+chapter\s+(\d+(?:\.\d+)*)\b',
         r'\bsee\s+Chapter\s+(\d+(?:\.\d+)*)\b',
     ]
-    
+
     updated_count = 0
-    
+
     for page in doc:
         for pattern in patterns:
             # Find all matches on the page
             text_instances = page.search_for(pattern)
-            
+
             for inst in text_instances:
                 # Extract the text around the match
                 rect = fitz.Rect(inst)
                 # Expand rectangle slightly to get more context
                 expanded_rect = rect + (-10, -5, 10, 5)
-                
+
                 try:
                     page_text = page.get_textbox(expanded_rect)
-                    
+
                     # Find the numbering in the extracted text
                     match = re.search(pattern, page_text, re.IGNORECASE)
                     if match:
                         old_numbering = match.group(1)
                         if old_numbering in numbering_map:
                             new_numbering = numbering_map[old_numbering]
-                            
+
                             # Replace the old numbering with new one
                             updated_text = re.sub(r'\b' + re.escape(old_numbering) + r'\b', new_numbering, page_text)
-                            
+
                             # Remove the old text and add the updated text
                             page.add_redact_annot(expanded_rect, fill=(1, 1, 1))
                             page.apply_redactions()
-                            
+
                             # Insert updated text
                             page.insert_textbox(expanded_rect, updated_text, fontsize=10, color=(0, 0, 0))
                             updated_count += 1
-                            
+
                 except Exception as e:
                     # Skip if text extraction fails
                     continue
-    
+
     if updated_count > 0:
         print(f"Updated {updated_count} cross-references in the document")
-    
+
     return updated_count
     """Parse page specification like '1,3,5-7' into a set of page numbers (0-based)."""
     pages = set()
@@ -189,7 +189,7 @@ def main():
 
     # Open the PDF for reading
     doc = fitz.open(input_pdf)
-    
+
     # Determine which pages to process
     if args.pages:
         pages_to_process = parse_pages(args.pages)
@@ -206,19 +206,19 @@ def main():
 
 # Create new PDF with selected pages (batch insert for better performance)
     new_doc = fitz.open()
-    
+
     # Sort pages and create page ranges for batch insertion
     sorted_pages = sorted(pages_to_process)
-    
+
     # Create mapping from old page numbers to new page numbers
     page_mapping = {}  # old_page_index -> new_page_number (1-based)
     new_page_num = 1
-    
+
     # Group consecutive pages for batch insertion
     if sorted_pages:
         current_range_start = sorted_pages[0]
         current_range_end = sorted_pages[0]
-        
+
         for page_idx in sorted_pages[1:]:
             if page_idx == current_range_end + 1:
                 # Extend current range
@@ -233,7 +233,7 @@ def main():
                 # Start new range
                 current_range_start = page_idx
                 current_range_end = page_idx
-        
+
         # Insert final range
         new_doc.insert_pdf(doc, from_page=current_range_start, to_page=current_range_end)
         for i in range(current_range_start, current_range_end + 1):
@@ -266,7 +266,7 @@ def main():
     # Write TOC to text file in pdfpages addtotoc format
     base_name = os.path.splitext(input_pdf)[0]
     toc_file = f"{base_name}_bm.txt"
-    
+
     # Filter TOC entries by MAX_TOC_LEVEL and collect entries
     toc_entries = []
     for level, title, page in new_toc:
@@ -335,7 +335,7 @@ def main():
         text_rect = fitz.Rect(W/2 - 20, H - 45, W/2 + 20, H - 25)
 
         # Add page number with smaller font for minimal size increase
-        page.insert_textbox(text_rect, page_number_text, 
+        page.insert_textbox(text_rect, page_number_text,
                           fontsize=11,   # Smaller font
                           color=(0, 0, 0),  # Black text
                           align=1)  # Center alignment
@@ -343,7 +343,7 @@ def main():
         page_counter += 1
 
     # Save the new document with aggressive compression options to minimize file size
-    new_doc.save(output_pdf, 
+    new_doc.save(output_pdf,
                 deflate=True,           # Enable general compression
                 deflate_images=True,    # Compress images
                 deflate_fonts=True,     # Compress fonts
