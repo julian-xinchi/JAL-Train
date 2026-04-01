@@ -4,7 +4,7 @@ import os
 import re
 
 # Maximum TOC level to include (1=chapter, 2=section, 3=subsection, etc.)
-MAX_TOC_LEVEL = 3
+MAX_TOC_LEVEL = 4
 
 def clean_title(title):
     """Remove numbering from title (e.g., '1.1 Introduction' -> 'Introduction')"""
@@ -34,7 +34,7 @@ def renumber_toc_entries(toc_entries):
             level_counters[level] += 1
 
         # Reset counters for deeper levels
-        for deeper_level in range(level + 1, MAX_TOC_LEVEL + 1):
+        for deeper_level in range(level + 1, 5):  # Include level 4
             if deeper_level in level_counters:
                 level_counters[deeper_level] = 0
 
@@ -46,7 +46,11 @@ def renumber_toc_entries(toc_entries):
 
         # Remove old numbering and add new one
         clean_title_text = clean_title(title)
-        new_title = f"{numbering_prefix} {clean_title_text}"
+        if level == 4:
+            # For level 4, don't add numbering prefix
+            new_title = clean_title_text
+        else:
+            new_title = f"{numbering_prefix} {clean_title_text}"
 
         # Store mapping for cross-references
         if old_numbering:
@@ -204,7 +208,7 @@ def main():
 
     print(f"Processing {len(pages_to_process)} pages out of {len(doc)} total pages.")
 
-# Create new PDF with selected pages (batch insert for better performance)
+    # Create new PDF with selected pages (batch insert for better performance)
     new_doc = fitz.open()
 
     # Sort pages and create page ranges for batch insertion
@@ -313,21 +317,23 @@ def main():
 
         # ===== Regions to be erased (adjust as needed) =====
 
-        # Header area (top of page)
+        # Header area (top of page) - precise coverage without extending beyond content
         header_rect = fitz.Rect(0, 0, W, 70)
 
-        # Footer area (bottom of page)
+        # Footer area (bottom of page) - precise coverage without extending beyond content
         footer_rect = fitz.Rect(0, H - 70, W, H)
 
         if redact_mode:
-            # True redaction removes content from content stream in specified rects.
+            # Method for PyMuPDF 1.22.5: use redaction first, then minimal overlay
             for rect in (header_rect, footer_rect):
-                page.add_redact_annot(rect, fill=(1, 1, 1))
+                # Apply redaction to remove content
+                page.add_redact_annot(rect, fill=None)
             page.apply_redactions()
         else:
-            # Overpaint the regions with white rectangles (less ideal but quick)
+            # Alternative method: use precise white overlay without any potential borders
             for rect in (header_rect, footer_rect):
-                page.draw_rect(rect, color=(1, 1, 1), fill=(1, 1, 1))
+                # Use only fill parameter to avoid any border artifacts
+                page.draw_rect(rect, fill=(1, 1, 1))
 
         # ===== Add page number ===== (COMMENTED OUT)
         # Position page number in the center bottom of the page (compact)
