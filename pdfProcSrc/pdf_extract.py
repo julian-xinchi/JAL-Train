@@ -33,6 +33,27 @@ def point_to_list(p):
     return [math.ceil(p.x) * 1.0, math.ceil(p.y) * 1.0]
 
 
+def is_horizontal_word(word, max_slope=0.5):
+    """Return True if a word bbox is roughly horizontal, excluding vertical or steeply rotated text."""
+    x0, y0, x1, y1 = word[:4]
+    width = x1 - x0
+    height = y1 - y0
+    if width <= 0 or height <= 0:
+        return False
+    # If the word is taller than it is wide, treat it as vertical/rotated.
+    if height / width > 1.0:
+        return False
+    # If the word is steeply tilted, width and height ratio still helps filter it.
+    if height / width > max_slope:
+        return False
+    return True
+
+
+def filter_horizontal_words(words):
+    """Filter a word list to keep only roughly horizontal text items."""
+    return [w for w in words if is_horizontal_word(w)]
+
+
 def strip_title_numbering(title, level):
     """Strip numbering prefix from title if it matches the expected level depth.
     Level N expects N number groups: "1" for level 1, "1.1" for level 2, etc.
@@ -151,7 +172,7 @@ def main():
     }
     for page_idx in original_links:
         page = doc[page_idx]
-        words = page.get_text("words")
+        words = filter_horizontal_words(page.get_text("words"))
         word_rects = []
         for w in words:
             text = w[4].strip()
@@ -291,7 +312,7 @@ def main():
     for old_idx in sorted_pages:
         new_pn = page_mapping[old_idx]
         page = doc[old_idx]
-        words = page.get_text("words")
+        words = filter_horizontal_words(page.get_text("words"))
         page_links = []
         for link in original_links.get(old_idx, []):
             sl = serialize_link(link)
@@ -324,7 +345,7 @@ def main():
     # Pre-compute words per page for text extraction
     page_words = {}
     for old_idx in sorted_pages:
-        page_words[old_idx] = doc[old_idx].get_text("words")
+        page_words[old_idx] = filter_horizontal_words(doc[old_idx].get_text("words"))
     with open(links_csv, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["Page", "Kind", "From(x0)", "From(y0)", "From(x1)", "From(y1)",
