@@ -23,7 +23,7 @@ ADD rdc_boxed.exe which can draw curve of sin(2\*pi\*exci_x)\*sin(2\*pi\*sig_x),
                                     --fractional part supported
 
       Noise factor(0.0~0.5)
-  
+
   One "Generate" button included, when press the button, new curve decided by parameters in four text boxes will be drawn in GUI.
 
 2023/5/18:
@@ -73,4 +73,7 @@ optimize the code structure, add comments, etc.
 
 2026/3/26
 Create new script file src/pdf_hf_proc.py to process pdf file, the header/footer will be removed etc.
+
+2026/4/27
+Create python files for PDF processing at directory pdfProcSrc/, and move src/pdf_hf_proc.py to pdfProcSrc/pdf_hf_proc.py.
 
