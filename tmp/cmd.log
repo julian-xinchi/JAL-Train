@@ -64,7 +64,33 @@ pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple PyMuPDF
 
 
+2026/4/28:
+  11 python .\pdfProcSrc\pdf_get_footer.py -h
+  12 python .\pdfProcSrc\pdf_get_footer.py .\vendor_trm.pdf --page 13,700
+  13 h
+  18 python .\pdfProcSrc\pdf_extract.py .\vendor_trm.pdf --page 1-742 -o DPU8K_TRM_t.pdf
+  19 git add .\pdfProcSrc\*.py
+  20 git commit -m"Backup PDF processing files"
+  21 git push
+  28 git commit -m"Minor polish for pdf_extract.py, filtering non-horizontal texts when using .get_text()"
+  29 git push
+  30 git add .\README.md
+  31 git commit -m"update README"
+  32 git status -uno
+  33 git add .\src\pdf_hf_proc.py
+  34 git add .\tmp\note.docx
+  35 git commit -m"update env."
 
+  66 git status -uno
+  67 git remote -v
+  68 python .\pdfProcSrc\pdf_extract.py .\vendor_trm.pdf --page 1-742 -o DPU8K_TRM_t.pdf
+  69 python .\pdfProcSrc\pdf_extract.py .\vendor_trm.pdf --page 1-742 -o DPU8K_TRM_t.pdf --debug-page 22
+  72 python .\pdfProcSrc\pdf_dump_structure.py -h
+  73 python .\pdfProcSrc\pdf_dump_structure.py .\vendor_trm.pdf --page 22
+  74 git add .\pdfProcSrc\pdf_extract.py
+  75 git commit -m"Added file pdf_dump_structure.py, and optimized code of pdf_extract.py"
+  76 git status -uno
+  79 git pull
 
 
 
