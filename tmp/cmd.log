@@ -1,0 +1,70 @@
+2026/4/27:
+
+pip 更新慢的根本原因是它的默认源服务器在国外，国内访问自然会受到网络延迟和带宽的限制。最直接有效的解决方法就是**换用国内的镜像源**。
+
+### 🚀 核心解决方案：切换至国内镜像源
+
+你可以通过“临时使用”或“永久配置”两种方式来使用国内镜像源。
+
+#### 1. 临时使用（适合一次性安装）
+
+这种方法最简单，适合只想快速安装某一个库时使用。在正常的 `pip install` 命令后，加上 `-i` 参数和镜像源地址即可。
+
+```bash
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple <你要安装的库名>
+```
+
+#### 2. 永久配置（一劳永逸）
+
+如果你希望以后每次安装都自动使用国内源，可以将配置写入pip的配置文件中。操作非常简单，在终端中执行以下命令即可自动完成配置：
+
+```bash
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+> **配置验证**：配置完成后，可以运行 `pip config list` 命令来查看当前的全局设置，确认是否已生效。
+
+### 🏆 国内常用镜像源推荐
+
+以下是几个国内稳定、高速的镜像源，你可以根据自己的网络情况选择：
+
+| 镜像站名称 | 镜像源地址（index-url） | 特点 |
+| :--- | :--- | :--- |
+| **清华大学** | `https://pypi.tuna.tsinghua.edu.cn/simple` | 同步频繁、稳定可靠，**首推** |
+| **阿里云** | `https://mirrors.aliyun.com/pypi/simple/` | 阿里云官方提供，速度极佳 |
+| **中国科学技术大学 (USTC)** | `https://pypi.mirrors.ustc.edu.cn/simple/` | 老牌镜像站，教育网用户优选 |
+| **豆瓣 (Douban)** | `https://pypi.douban.com/simple/` | 同样非常流行，速度表现出色 |
+
+### ✨ 关于升级 `pip` 自身
+
+如果你是在执行 `pip install --upgrade pip` 命令时卡住，也可以用同样的方法为它提速：
+
+```bash
+# 临时使用国内源来升级pip
+pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+### ⚠️ 常见问题与排查
+
+如果更换镜像源后速度依然不理想，可以检查以下几点：
+
+1.  **网络环境**：确保当前网络连接正常。
+2.  **镜像源稳定性**：若某个源速度不佳，尝试切换到推荐列表中的另一个镜像源。
+3.  **缓存问题**：过旧的缓存也可能干扰下载，可以尝试清理一下。
+    ```bash
+    pip cache purge
+    ```
+4.  **SSL证书报错**：如果在公司内网等环境遇到 SSL 证书问题，可以尝试添加 `--trusted-host` 参数。
+    ```bash
+    pip install -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn <库名>
+    ```
+
+
+
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple PyMuPDF
+
+
+
+
+
+
