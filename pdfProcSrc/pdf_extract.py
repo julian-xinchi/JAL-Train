@@ -3,10 +3,14 @@
 
 import fitz  # PyMuPDF
 import argparse
+import csv
 import json
 import math
 import os
 import re
+
+MAX_BODY_TEXT_HEIGHT = 35.0
+LINK_RECT_SHRINK = 1
 
 
 def parse_pages(pages_str):
@@ -33,25 +37,53 @@ def point_to_list(p):
     return [math.ceil(p.x) * 1.0, math.ceil(p.y) * 1.0]
 
 
-def is_horizontal_word(word, max_slope=0.5):
-    """Return True if a word bbox is roughly horizontal, excluding vertical or steeply rotated text."""
-    x0, y0, x1, y1 = word[:4]
-    width = x1 - x0
-    height = y1 - y0
-    if width <= 0 or height <= 0:
-        return False
-    # If the word is taller than it is wide, treat it as vertical/rotated.
-    if height / width > 1.0:
-        return False
-    # If the word is steeply tilted, width and height ratio still helps filter it.
-    if height / width > max_slope:
-        return False
-    return True
+def get_filtered_words(page, max_body_height=0, debug=False):
+    """Get words from page, excluding watermark words.
 
+    A word is filtered when ALL of:
+      1. Its rect is contained in a non-horizontal span's bbox
+      2. Its text is found within that span's text
+      3. Its height > max_body_height (watermark text is large)
+    """
+    td = page.get_text("dict")
+    # Collect (span_rect, span_text) from non-horizontal spans
+    filter_items = []
+    for block in td["blocks"]:
+        if block["type"] != 0:
+            continue
+        for line in block["lines"]:
+            if line.get("dir", (1, 0)) == (1, 0):
+                continue
+            for span in line["spans"]:
+                filter_items.append((fitz.Rect(span["bbox"]), span["text"]))
 
-def filter_horizontal_words(words):
-    """Filter a word list to keep only roughly horizontal text items."""
-    return [w for w in words if is_horizontal_word(w)]
+    if debug and filter_items:
+        print(f"  [DEBUG page={page.number + 1}] non-horizontal span filters: {len(filter_items)}")
+        for i, (fr, st) in enumerate(filter_items):
+            print(f"    filter[{i}]: rect={fr} text={st!r}")
+
+    words = page.get_text("words")
+    if not filter_items:
+        return words
+
+    result = []
+    for w in words:
+        wr = fitz.Rect(w[:4])
+        wtext = w[4]
+        wh = wr.height
+        filtered = (wh > max_body_height
+                    and any(fr.contains(wr) and wtext in st
+                            for fr, st in filter_items))
+        if debug and filtered:
+            print(f"    FILTERED: Rect({w[0]:.1f},{w[1]:.1f},{w[2]:.1f},{w[3]:.1f})"
+                  f" h={wh:.1f} text={wtext!r}")
+        if not filtered:
+            result.append(w)
+
+    if debug:
+        print(f"  [DEBUG page={page.number + 1}] words: {len(words)} total,"
+              f" {len(words) - len(result)} filtered, {len(result)} kept")
+    return result
 
 
 def strip_title_numbering(title, level):
@@ -98,13 +130,19 @@ def serialize_dest(dest, page_mapping=None):
         d = dict(dest)
         if "to" in d and hasattr(d["to"], "x"):
             d["to"] = point_to_list(d["to"])
-        # Remap "page" field if present
         if "page" in d and page_mapping is not None:
             old_target = d["page"]
             if old_target in page_mapping:
-                d["page"] = page_mapping[old_target] - 1  # 0-based
+                d["page"] = page_mapping[old_target] - 1
         return d
     return dest
+
+
+def extract_text_in_rect(words, rect):
+    """Extract sorted text from words that intersect the given rect."""
+    matched = [(w[1], w[0], w[4]) for w in words if fitz.Rect(w[:4]).intersects(rect)]
+    matched.sort()
+    return " ".join(w[2] for w in matched).strip()
 
 
 def main():
@@ -112,6 +150,10 @@ def main():
     parser.add_argument("input", help="Input PDF file")
     parser.add_argument("-o", "--output", help="Output PDF file (default: input_extracted.pdf)")
     parser.add_argument("--pages", required=True, help="Pages to extract (1-based, e.g., '1,3,5-7')")
+    parser.add_argument("--max-body-text-height", type=float, default=MAX_BODY_TEXT_HEIGHT,
+                        help="Max body text height threshold; words taller than this in non-horizontal spans are filtered (0=disable)")
+    parser.add_argument("--debug-page", type=int, default=0,
+                        help="Page number to debug word filtering (1-based)")
     args = parser.parse_args()
 
     input_pdf = args.input
@@ -119,11 +161,11 @@ def main():
         print(f"Error: Input file '{input_pdf}' not found.")
         return
 
-    # Determine output filename
-    base_name = os.path.splitext(input_pdf)[0]
-    output_pdf = args.output or f"{base_name}_extracted.pdf"
-    toc_json = os.path.splitext(output_pdf)[0] + "_toc.json"
-    links_json = os.path.splitext(output_pdf)[0] + "_links.json"
+    # Determine output filenames
+    output_pdf = args.output or f"{os.path.splitext(input_pdf)[0]}_extracted.pdf"
+    out_base = os.path.splitext(output_pdf)[0]
+    toc_json = out_base + "_toc.json"
+    links_json = out_base + "_links.json"
 
     # Check existing output files
     existing = [f for f in [output_pdf, toc_json, links_json] if os.path.exists(f)]
@@ -152,68 +194,41 @@ def main():
     sorted_pages = sorted(pages_to_process)
 
     # --- Build page mapping (old 0-based idx -> new 1-based page number) ---
-    page_mapping = {}
-    new_page_num = 1
+    page_mapping = {old: new for new, old in enumerate(sorted_pages, 1)}
+    # Reverse mapping: new page number -> old 0-based idx
+    rev_mapping = {str(v): k for k, v in page_mapping.items()}
+
+    # --- Pre-compute filtered words per page (once) ---
+    page_words = {}
     for old_idx in sorted_pages:
-        page_mapping[old_idx] = new_page_num
-        new_page_num += 1
+        page = doc[old_idx]
+        page_words[old_idx] = get_filtered_words(
+            page, args.max_body_text_height,
+            debug=(page.number + 1 == args.debug_page))
 
     # --- Record links from original pages ---
-    original_links = {}
+    original_links = {page_idx: doc[page_idx].get_links() for page_idx in sorted_pages}
+
+    # --- Normalize link rects: shrink slightly, then expand to cover actual words ---
     for page_idx in sorted_pages:
-        original_links[page_idx] = doc[page_idx].get_links()
-
-    # --- Normalize link rects: shrink slightly, avoiding watermarks and hidden text ---
-    SHRINK = 1
-    WATERMARK_KEYWORDS = {
-        "confidential", "for confidential", "confidentiality",
-        "confidential information", "proprietary", "internal use only",
-        "Confidential,Semidrive only",
-    }
-    for page_idx in original_links:
-        page = doc[page_idx]
-        words = filter_horizontal_words(page.get_text("words"))
-        word_rects = []
-        for w in words:
-            text = w[4].strip()
-            if not text:
-                continue
-            lower_text = text.lower()
-            if any(keyword in lower_text for keyword in WATERMARK_KEYWORDS):
-                continue
-            word_rects.append(fitz.Rect(w[:4]))
-
+        word_rects = [fitz.Rect(w[:4]) for w in page_words[page_idx]]
         for link in original_links[page_idx]:
-            rect = link["from"]
             if link["kind"] != fitz.LINK_GOTO:
-                link["from"] = fitz.Rect(
-                    math.ceil(rect.x0), math.ceil(rect.y0),
-                    math.floor(rect.x1), math.floor(rect.y1))
                 continue
-
-            shrunk = fitz.Rect(rect.x0 + SHRINK, rect.y0 + SHRINK,
-                               rect.x1 - SHRINK, rect.y1 - SHRINK)
+            rect = link["from"]
+            shrunk = fitz.Rect(rect.x0 + LINK_RECT_SHRINK, rect.y0 + LINK_RECT_SHRINK,
+                               rect.x1 - LINK_RECT_SHRINK, rect.y1 - LINK_RECT_SHRINK)
             matched = [wr for wr in word_rects if wr.intersects(shrunk)]
             if matched:
-                word_rect = matched[0]
+                union = matched[0]
                 for wr in matched[1:]:
-                    word_rect |= wr
-                adjusted_rect = fitz.Rect(
-                    math.ceil(word_rect.x0), math.ceil(word_rect.y0),
-                    math.floor(word_rect.x1), math.floor(word_rect.y1))
-                if adjusted_rect.get_area() <= rect.get_area() * 2:
-                    link["from"] = adjusted_rect
-                else:
-                    link["from"] = fitz.Rect(
-                        math.ceil(rect.x0), math.ceil(rect.y0),
-                        math.floor(rect.x1), math.floor(rect.y1))
-            else:
+                    union |= wr
                 link["from"] = fitz.Rect(
-                    math.ceil(rect.x0), math.ceil(rect.y0),
-                    math.floor(rect.x1), math.floor(rect.y1))
+                    math.ceil(union.x0), math.ceil(union.y0),
+                    math.floor(union.x1), math.floor(union.y1))
 
     # --- Merge overlapping LINK_GOTO links with same target on the same page ---
-    for page_idx in original_links:
+    for page_idx in sorted_pages:
         links = original_links[page_idx]
         merged = []
         used = [False] * len(links)
@@ -242,7 +257,7 @@ def main():
             if len(group) > 1:
                 merged_rect = links[group[0]]["from"]
                 for k in group[1:]:
-                    merged_rect |= links[k]["from"]
+                    merged_rect = merged_rect | links[k]["from"]
                 merged_link = dict(links[group[0]])
                 merged_link["from"] = merged_rect
                 merged.append(merged_link)
@@ -297,8 +312,7 @@ def main():
     print(f"Saved TOC: {toc_json} ({len(toc_data)} entries)")
 
     # --- Save TOC to CSV ---
-    import csv
-    toc_csv = os.path.splitext(output_pdf)[0] + "_toc.csv"
+    toc_csv = out_base + "_toc.csv"
     with open(toc_csv, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["Level", "Title", "Page", "Dest"])
@@ -311,26 +325,16 @@ def main():
     links_data = {}
     for old_idx in sorted_pages:
         new_pn = page_mapping[old_idx]
-        page = doc[old_idx]
-        words = filter_horizontal_words(page.get_text("words"))
+        words = page_words[old_idx]
         page_links = []
         for link in original_links.get(old_idx, []):
             sl = serialize_link(link)
-            # Remap GOTO page numbers
             if sl["kind"] == fitz.LINK_GOTO and sl.get("page", -1) >= 0:
                 old_target = sl["page"]
-                if old_target in page_mapping:
-                    sl["page"] = page_mapping[old_target] - 1  # 0-based for insert_link
-                else:
-                    sl["page"] = -1  # target not in extracted pages
-            # Extract text from link rect
+                sl["page"] = page_mapping[old_target] - 1 if old_target in page_mapping else -1
             fr = sl.get("from", [])
             if len(fr) == 4:
-                rect = fitz.Rect(fr)
-                matched = [(w[1], w[0], w[4]) for w in words
-                           if fitz.Rect(w[:4]).intersects(rect)]
-                matched.sort()
-                sl["_comment"] = " ".join(w[2] for w in matched).strip()
+                sl["_comment"] = extract_text_in_rect(words, fitz.Rect(fr))
             page_links.append(sl)
         if page_links:
             links_data[str(new_pn)] = page_links
@@ -341,40 +345,26 @@ def main():
     print(f"Saved links: {links_json} ({total_links} links on {len(links_data)} pages)")
 
     # --- Save links to CSV ---
-    links_csv = os.path.splitext(output_pdf)[0] + "_links.csv"
-    # Pre-compute words per page for text extraction
-    page_words = {}
-    for old_idx in sorted_pages:
-        page_words[old_idx] = filter_horizontal_words(doc[old_idx].get_text("words"))
+    links_csv = out_base + "_links.csv"
     with open(links_csv, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["Page", "Kind", "From(x0)", "From(y0)", "From(x1)", "From(y1)",
                           "TargetPage", "To(x)", "To(y)", "Zoom", "Name", "URI", "Text"])
         for page_str, link_list in links_data.items():
-            old_idx = [k for k, v in page_mapping.items() if str(v) == page_str]
-            old_idx = old_idx[0] if old_idx else None
+            old_idx = rev_mapping.get(page_str)
             words = page_words.get(old_idx, []) if old_idx is not None else []
-            word_rects = [fitz.Rect(w[:4]) for w in words]
             for ld in link_list:
                 fr = ld.get("from", [])
                 rect = fitz.Rect(fr) if len(fr) == 4 else None
                 to = ld.get("to", [])
-                # Extract text from link rect
-                text = ""
-                if rect and word_rects:
-                    matched = [(w[1], w[0], w[4]) for w, wr in zip(words, word_rects)
-                               if wr.intersects(rect)]
-                    matched.sort()
-                    text = " ".join(w[2] for w in matched).strip()
+                text = extract_text_in_rect(words, rect) if rect and words else ""
+                fr = list(fr) + [""] * (4 - len(fr))
+                to = list(to) + [""] * (2 - len(to))
                 writer.writerow([
                     int(page_str), ld.get("kind", ""),
-                    fr[0] if len(fr) > 0 else "",
-                    fr[1] if len(fr) > 1 else "",
-                    fr[2] if len(fr) > 2 else "",
-                    fr[3] if len(fr) > 3 else "",
+                    fr[0], fr[1], fr[2], fr[3],
                     ld.get("page", ""),
-                    to[0] if len(to) > 0 else "",
-                    to[1] if len(to) > 1 else "",
+                    to[0], to[1],
                     ld.get("zoom", ""),
                     ld.get("name", ""),
                     ld.get("uri", ""),
@@ -383,7 +373,7 @@ def main():
     print(f"Saved links CSV: {links_csv}")
 
     # Save page mapping for reference
-    mapping_json = os.path.splitext(output_pdf)[0] + "_mapping.json"
+    mapping_json = out_base + "_mapping.json"
     mapping_data = {str(old + 1): new for old, new in page_mapping.items()}
     with open(mapping_json, "w", encoding="utf-8") as f:
         json.dump(mapping_data, f, indent=2)
