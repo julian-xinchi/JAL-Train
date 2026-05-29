@@ -77,3 +77,7 @@ Create new script file src/pdf_hf_proc.py to process pdf file, the header/footer
 2026/4/27
 Create python files for PDF processing at directory pdfProcSrc/, and move src/pdf_hf_proc.py to pdfProcSrc/pdf_hf_proc.py.
 
+2026/5/29
+following the issue: https://github.com/anthropics/claude-code/issues/31561
+
+

@@ -92,5 +92,9 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple PyMuPDF
   76 git status -uno
   79 git pull
 
+   6 npm install -g @anthropic-ai/claude-code
+
+C:\Users\Peng Li\.vscode\extensions\anthropic.claude-code-2.1.156-win32-x64\package.json
+
 
 
