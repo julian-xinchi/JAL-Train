@@ -63,6 +63,12 @@ pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple PyMuPDF
 
+findstr /?
+
+py install -V:3.13
+py uninstall 3.13
+py list
+py install 3.14 --source="https://mirrors.tuna.tsinghua.edu.cn/python/index-windows.json" -d e:\python314
 
 
 
