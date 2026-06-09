@@ -70,6 +70,8 @@ py uninstall 3.13
 py list
 py install 3.14 --source="https://mirrors.tuna.tsinghua.edu.cn/python/index-windows.json" -d e:\python314
 
+https://mirrors.tuna.tsinghua.edu.cn/python/
+
 2026/4/28:
   11 python .\pdfProcSrc\pdf_get_footer.py -h
   12 python .\pdfProcSrc\pdf_get_footer.py .\vendor_trm.pdf --page 13,700
