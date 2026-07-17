@@ -80,4 +80,9 @@ Create python files for PDF processing at directory pdfProcSrc/, and move src/pd
 2026/5/29
 following the issue: https://github.com/anthropics/claude-code/issues/31561
 
+2026/6/26, V2rayN: allowinsecure issue,
+following the issue: https://github.com/2dust/v2rayN/discussions/9460#discussion-10187606
+
+
+
 
