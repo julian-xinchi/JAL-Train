@@ -1,3 +1,364 @@
+# stage-1/stage-2 sid通常如何送给smmu？
+
+这里有一个很容易混淆的点：**严格来说，SMMU 并不存在“Stage-1 SID”和“Stage-2 SID”两个独立的 SID。**
+
+对于 SMMUv3，通常是：
+
+* **StreamID (SID)**：随 transaction 进入 SMMU，用来选择 **STE**。
+* **SubstreamID (SSID)**：如果启用了 substream，随 transaction 进入 SMMU，用来选择 **CD**，从而确定 Stage-1 translation context。
+* **Stage-2 configuration**：由 SID 查到的 **STE** 决定，不需要 transaction 再额外携带一个“Stage-2 SID”。([Arm文档服务][1])
+
+可以把路径画成：
+
+```text
+                    Transaction
+                         │
+              ┌──────────┴──────────┐
+              │                     │
+          StreamID                 SSID
+              │                     │
+              ▼                     ▼
+        Stream Table             CD Table
+              │                     │
+             STE                    CD
+              │                     │
+        ┌─────┴─────┐              │
+        │           │              │
+   Stage-2 cfg   CD table ptr   Stage-1 cfg
+        │                          │
+        └──────────┐    ┌──────────┘
+                   ▼    ▼
+                 S1 translation
+                       │
+                      IPA
+                       │
+                 S2 translation
+                       │
+                       ▼
+                      PA
+```
+
+### 1. SID 是怎么送进 SMMU 的？
+
+对于一个典型的 AXI requester：
+
+```text
+        Display / GPU / DMA
+               │
+               │ AXI transaction
+               │
+               │  ARADDR
+               │  AR...
+               │  ARMMUSID
+               ▼
+              NoC
+               │
+               ▼
+              SMMU
+```
+
+你前面截图里的：
+
+```text
+ARMMUSID0[7:0]
+AWMMUSID0[7:0]
+```
+
+就是非常典型的这种东西。
+
+例如：
+
+```text
+ARMMUSID = 8'h20
+```
+
+transaction 到达 SMMU 后：
+
+```text
+SID = 0x20
+   │
+   ▼
+STE[0x20]
+```
+
+SMMU 用 `0x20` 索引 Stream Table，找到这个 stream 的配置。Arm 文档明确描述了 **StreamID selects a STE**。([Arm文档服务][2])
+
+---
+
+## 2. SSID 又是怎么送的？
+
+如果设备支持 substream，那么 transaction 还需要携带：
+
+```text
+SSID
+```
+
+例如：
+
+```text
+SID  = 0x20
+SSID = 0x03
+```
+
+SMMU 做：
+
+```text
+SID = 0x20
+    ↓
+STE[0x20]
+    ↓
+找到 CD table
+    ↓
+SSID = 3
+    ↓
+CD[3]
+```
+
+然后 CD 提供 Stage-1 translation configuration。
+
+所以从硬件接口角度，可以理解为 transaction 上存在：
+
+```text
+StreamID
+SubstreamID
+```
+
+而不是：
+
+```text
+Stage1_SID
+Stage2_SID
+```
+
+---
+
+# 3. 那么你前面看到的 `ARMMUSID` 是给谁的？
+
+这点和你现在看的 Display Processor TRM **直接相关**。
+
+你截图里：
+
+```text
+ARMMUSECSID0
+ARMMUSID0[7:0]
+```
+
+描述的是：
+
+```text
+ARM MUSEC SID
+ARM MUSID
+```
+
+它们是 **transaction 的 SMMU stream identification 信息**。
+
+例如：
+
+```text
+Display Processor
+       │
+       │ AR
+       │
+       ├── ARADDR
+       ├── ARID
+       ├── ARLEN
+       ├── ...
+       ├── ARMMUSID
+       └── ARMMUSECSID
+                │
+                ▼
+               NoC
+                │
+                ▼
+               SMMU
+```
+
+因此如果你们的 NoC 是把 AXI transaction 从 Display Processor 路由到 SMMU，那么 **这些 SID sideband 必须随着 transaction 一起被保留下来/传递下去**，不能像普通无关 USER 信号一样随意丢掉。
+
+---
+
+# 4. 但是 Stage-2 并不需要额外送一个 SID
+
+假设：
+
+```text
+Display
+SID = 0x20
+SSID = 3
+```
+
+SMMU：
+
+```text
+             SID=0x20
+                 │
+                 ▼
+             STE[0x20]
+                 │
+        ┌────────┴────────┐
+        │                 │
+   Stage-2 config      CD table
+                          │
+                       SSID=3
+                          │
+                          ▼
+                         CD3
+                          │
+                    Stage-1 config
+```
+
+所以：
+
+### Stage 2
+
+```text
+SID → STE → Stage-2 configuration
+```
+
+### Stage 1
+
+```text
+SID → STE → CD table
+                 ↑
+                SSID
+                 │
+                 ↓
+                CD
+```
+
+这也是为什么前面那份 Arm 文档说：
+
+> transactions with the same StreamID and different SubstreamIDs ... must have the same stage 2 translation configuration.
+
+因为它们最终找到的是**同一个 STE**，而 Stage-2 配置就在 STE 里面。([Arm文档服务][2])
+
+---
+
+# 5. 一个很典型的 DMA 场景
+
+假设一个 DMA engine：
+
+```text
+DMA
+ ├── Channel 0
+ ├── Channel 1
+ └── Channel 2
+```
+
+整个 DMA 只有一个 StreamID：
+
+```text
+SID = 0x40
+```
+
+但三个 channel 使用三个不同的 address space：
+
+```text
+Channel 0 → SSID=0
+Channel 1 → SSID=1
+Channel 2 → SSID=2
+```
+
+于是：
+
+```text
+Channel 0
+ SID=0x40, SSID=0
+        │
+        ├── STE[0x40]
+        │       │
+        │       └── Stage 2 = X
+        │
+        └── CD[0]
+                └── Stage 1 = A
+
+
+Channel 1
+ SID=0x40, SSID=1
+        │
+        ├── STE[0x40]
+        │       │
+        │       └── Stage 2 = X
+        │
+        └── CD[1]
+                └── Stage 1 = B
+```
+
+所以：
+
+```text
+             SID = 0x40
+                  │
+                  ▼
+                STE
+                  │
+             Stage 2 = X
+                  │
+           ┌──────┴──────┐
+           │             │
+        SSID=0         SSID=1
+           │             │
+          CD0           CD1
+           │             │
+        Stage 1 A     Stage 1 B
+```
+
+这就是 **“same StreamID + different SubstreamID → same Stage 2, different Stage 1”** 的实际意义。
+
+---
+
+## 6. 那么在你们 NoC 里到底需要传哪些东西？
+
+如果你的系统是：
+
+```text
+Display Processor
+       ↓
+      NoC
+       ↓
+      SMMU
+```
+
+那么重点应该检查 NoC transaction 的扩展属性是否包含：
+
+```text
+StreamID
+Secure StreamID / security information
+SubstreamID（如果系统使用）
+```
+
+尤其是你前面贴的 Display TRM 中：
+
+```text
+ARMMUSID
+ARMMUSECSID
+AWMMUSID
+AWMMUSECSID
+```
+
+这些**不是告诉 Display “使用 Stage 1 还是 Stage 2”**的配置字段，而是用于把 transaction 的 SMMU stream identity 带到后面的 SMMU。
+
+真正决定：
+
+```text
+是否 Stage 1
+是否 Stage 2
+Stage 1 用哪个 CD
+Stage 2 用什么 translation regime
+```
+
+的是 **SMMU 中预先由软件/固件配置好的 STE/CD**。
+
+一句话总结：
+
+> **Transaction 携带 SID（以及可选的 SSID）进入 SMMU；SID 选 STE，STE 决定 Stage-2 配置并指向 CD 表，SSID 再从 CD 表中选出 Stage-1 context。不存在一个单独“送给 SMMU 的 Stage-2 SID”。** ([Arm文档服务][1])
+
+如果你现在是在分析你截图里的 **`ARMMUSID/ARMMUSECSID` 到底经过 NoC 后是怎么进入 Arm SMMU-600/MMU-600 的**，这个可以进一步结合 **AXI 的具体 signal 定义、NoC 的 USER/extension signal、SMMU 的 TBU interface** 来画一条实际 RTL datapath，这会比纯架构概念更有用。
+
+[1]: https://documentation-service.arm.com/static/5f900e9ef86e16515cdc0907?utm_source=chatgpt.com "ARM® System Memory Management Unit Architecture Specification, SMMU architecture version 3.0 and version 3."
+[2]: https://documentation-service.arm.com/static/64f59fb3bc48b0381ce07226?token=&utm_source=chatgpt.com "Learn the Architecture - SMMU Software Guide"
+
+
 # 我在一个display Process UNIT里看到axi bus上有armmusid[7:0]/armmusecsid这样的信号，但是没有ssid的信号，但是寄存器配置里有s1sid/s2sid的设置，且内部有TBU模块，有DTI接口和smmu通讯
 
 对，这个信息一补充出来，**架构就完全不一样了**。你这个 Display Processing Unit 里面的 TBU 很可能不是单纯“把 AXI transaction 原样送到外部 SMMU”的 requester，而是一个**本地集成的 TBU（Translation Buffer Unit）**，通过 DTI 和外部 SMMU 的 TCU 通信。
